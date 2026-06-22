@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="black">
 <head>
   <!-- ==========================================================
-       MARKOV OS 9.0 — FULL READABLE PRODUCTION HTML
+       MARKOV OS 11.0 — FULL READABLE PRODUCTION HTML
        Single-file app: HTML + CSS + JS
        Storage: localStorage
        Dependencies: none
@@ -10,10 +10,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#050507" />
-  <title>MARKOV OS 9.0 — Full Readable Production HTML</title>
+  <title>MARKOV OS 11.0 — Full Source AI Visual Edition</title>
   <style>
 /* ==========================================================
-   MARKOV OS 9.0 — CSS SYSTEM
+   MARKOV OS 11.0 — CSS SYSTEM
    Sections: tokens, layout, cards, mobile, modals
    ========================================================== */
 :root{
@@ -843,12 +843,135 @@ html[data-theme=white] .modal{
   }
 
 }
+
+
+/* ==========================================================
+   MARKOV OS 11.0 — AI VISUAL POLISH
+   Goal: premium product feel, better readability, better mobile.
+   ========================================================== */
+
+.ai-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.ai-command-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.ai-output {
+  min-height: 260px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--gold) 5%, transparent), transparent),
+    var(--panel2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--goldLine) !important;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+.ai-key-field {
+  font-family: var(--mono);
+  letter-spacing: .01em;
+}
+
+.hero-visual {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-visual:after {
+  content: "";
+  position: absolute;
+  inset: auto -10% -35% auto;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--gold) 20%, transparent), transparent 68%);
+  filter: blur(6px);
+  opacity: .75;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.visual-divider {
+  height: 1px;
+  width: 100%;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--gold) 60%, transparent),
+      transparent
+    );
+  margin: 14px 0;
+}
+
+.command-tile {
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--gold) 7%, transparent), transparent),
+    var(--soft);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.command-tile h4 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 0 0 7px;
+  letter-spacing: -.02em;
+}
+
+.command-tile p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.code-map {
+  display: grid;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.code-map span {
+  border: 1px solid var(--line);
+  background: var(--soft);
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+@media (max-width: 1150px) {
+  .ai-status-grid,
+  .ai-command-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-output {
+    min-height: 220px;
+    font-size: 12px;
+  }
+
+  .command-tile h4 {
+    font-size: 18px;
+  }
+}
+
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="k">MARKOV OS 9.0</div><h1>Full Readable Production</h1><p>Новый стабильный дизайн: мобильный штаб, протоколы слива, персональный план, прогноз результата и рабочие кнопки.</p></div>
+    <div class="brand"><div class="k">MARKOV OS 11.0</div><h1>Full Readable Production</h1><p>Новый стабильный дизайн: мобильный штаб, протоколы слива, персональный план, прогноз результата и рабочие кнопки.</p></div>
     <nav class="nav" id="nav"></nav>
     <div class="sideActions">
       <button class="btn primary" onclick="openCurrent()">⚡ Текущее действие</button>
@@ -864,6 +987,7 @@ html[data-theme=white] .modal{
     <section id="shield" class="section"></section>
     <section id="timeline" class="section"></section>
     <section id="future" class="section"></section>
+    <section id="ai" class="section"></section>
     <section id="pm" class="section"></section>
     <section id="body" class="section"></section>
     <section id="content" class="section"></section>
@@ -879,12 +1003,12 @@ html[data-theme=white] .modal{
 
 <script>
 /* ==========================================================
-   MARKOV OS 9.0 — JAVASCRIPT SYSTEM
+   MARKOV OS 11.0 — JAVASCRIPT SYSTEM
    Sections: config, state, render, actions, exports
    ========================================================== */
-const KEY="MARKOV_OS_8_PERSONAL_COMMAND";
+const KEY="MARKOV_OS_11_FULL_SOURCE_AI_VISUAL";
 const nav=[
-["today","🏰","Сегодня","главный экран"],["plan","🧩","План","персональная сборка"],["shield","🛡️","Щит","протоколы слива"],["timeline","⏱️","Таймлайн","по времени"],["future","🚀","Прогноз","результат"],["pm","🧠","PM","карьера"],["body","🏋️","Тело","сушка"],["content","✍️","Контент","публикации"],["archive","📜","Архив","дни и экспорт"]
+["today","🏰","Сегодня","главный экран"],["plan","🧩","План","персональная сборка"],["shield","🛡️","Щит","протоколы слива"],["timeline","⏱️","Таймлайн","по времени"],["future","🚀","Прогноз","результат"],["ai","🤖","AI","DeepSeek"],["pm","🧠","PM","карьера"],["body","🏋️","Тело","сушка"],["content","✍️","Контент","публикации"],["archive","📜","Архив","дни и экспорт"]
 ];
 const tasks=[
 {
@@ -1239,7 +1363,7 @@ function adherence(){
 }
 function renderNav(){
   document.getElementById("nav").innerHTML=nav.map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="ico">${i[1]}</span><span><b>${i[2]}</b><br><small>${i[3]}</small></span></button>`).join("");
-  document.getElementById("mobilebar").innerHTML=nav.slice(0,5).map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="mi">${i[1]}</span>${i[2]}</button>`).join("");
+  document.getElementById("mobilebar").innerHTML=[nav[0],nav[1],nav[2],nav[5],nav[4]].map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="mi">${i[1]}</span>${i[2]}</button>`).join("");
   updateNav()
 }
 function go(id){
@@ -1278,6 +1402,7 @@ function render(){
   renderShield();
   renderTimeline();
   renderFuture();
+  renderAi();
   renderPM();
   renderBody();
   renderContent();
@@ -1399,6 +1524,472 @@ function calcProjection(){
 function renderFuture(){
   document.getElementById("future").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🚀 Прогноз результата</h2><p class="muted">Калькулятор показывает, что будет, если выполнять систему стабильно.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Параметры</h3><label><span>Дней</span><select id="futureDays"><option>7</option><option>14</option><option>30</option><option selected>60</option></select></label><label style="margin-top:12px"><span>Выполнение</span><select id="futureRate"><option>50</option><option>70</option><option selected>85</option><option>100</option></select></label><button class="btn primary" style="margin-top:12px" onclick="calcProjection()">Рассчитать</button></div><div class="card green"><h3>Результат</h3><textarea id="projectionOut" class="copybox" readonly>${project(60,85)}</textarea></div></div>`
 }
+
+
+/* ==========================================================
+   MARKOV OS 11.0 — AI / DEEPSEEK INTEGRATION
+   Provider: OpenModel
+   Model: deepseek-v4-flash
+   Security:
+   - Direct browser mode stores key only in localStorage if user saves it.
+   - Proxy mode keeps key in .env on local machine/server.
+   - Do not hardcode production API keys in this file.
+   ========================================================== */
+
+function getAiSettings() {
+  const settings = state.ai || {};
+
+  return {
+    mode: settings.mode || "proxy",
+    proxyEndpoint: settings.proxyEndpoint || "/api/ai",
+    baseUrl: settings.baseUrl || "https://api.openmodel.ai/v1",
+    model: settings.model || "deepseek-v4-flash",
+    maxTokens: Number(settings.maxTokens || 1200),
+    apiKey: settings.apiKey || ""
+  };
+}
+
+function setAiSetting(key, value) {
+  if (!state.ai) {
+    state.ai = {};
+  }
+
+  state.ai[key] = value;
+  save();
+}
+
+function aiConfigured() {
+  const settings = getAiSettings();
+
+  if (settings.mode === "proxy") {
+    return Boolean(settings.proxyEndpoint);
+  }
+
+  return Boolean(settings.apiKey && settings.baseUrl && settings.model);
+}
+
+function getAiContext() {
+  const task = currentTask();
+  const completedTasks = tasks
+    .filter((item) => done(item.id))
+    .map((item) => `${item.icon} ${item.title} (${tstate(item.id).doneAt})`)
+    .join(", ");
+
+  return {
+    date: localDate(),
+    time: timeNow(),
+    mode: modeLabel(),
+    currentTask: `${task.icon} ${task.title}`,
+    currentTaskMinimum: task.min,
+    currentTaskWhy: task.why,
+    todayXp: xpToday(),
+    totalXp: xpTotal(),
+    completionPercent: percent(),
+    completedTasks: completedTasks || "пока ничего не отмечено",
+    personalPlan: field("personalPlan") || "план ещё не собран",
+    note: field("note") || "",
+    pmArtifact: field("pmArtifact") || "",
+    weight: field("weight") || "100",
+    wellbeing: field("wellbeing") || "",
+    energy: field("energyNight") || "",
+    priorities: [
+      "Middle+/Senior-style Project Manager",
+      "деньги",
+      "блог / MARKOVMADE / Каста Феодалов",
+      "тело и сушка",
+      "творчество",
+      "английский для IT PM",
+      "автоматизация"
+    ]
+  };
+}
+
+function buildAiPrompt(kind, customText) {
+  const context = getAiContext();
+
+  const base = `
+Ты — встроенный AI-наставник MARKOV OS для Павла Маркова.
+
+Контекст Павла:
+- Имя: Павел Марков / MarkovMade.
+- Цель на 2 месяца: PM-мышление, деньги, блог, тело, творчество, языки, автоматизация.
+- Текущая задача: ${context.currentTask}.
+- Минимум задачи: ${context.currentTaskMinimum}.
+- Почему это важно: ${context.currentTaskWhy}.
+- Выполнение сегодня: ${context.completionPercent}%.
+- XP сегодня: ${context.todayXp}.
+- Режим дня: ${context.mode}.
+- Выполнено: ${context.completedTasks}.
+- Последний персональный план: ${context.personalPlan}.
+- Мысль дня: ${context.note}.
+- PM-артефакт: ${context.pmArtifact}.
+- Вес: ${context.weight}.
+- Самочувствие: ${context.wellbeing}.
+- Энергия: ${context.energy}.
+
+Стиль ответа:
+- Говори прямо, структурно и по делу.
+- Без воды и мотивационного мусора.
+- Дай конкретные действия.
+- Используй тон Павла: мощно, персонально, практично.
+- В конце дай ближайшее действие на 5 минут.
+`;
+
+  const prompts = {
+    test: `
+${base}
+
+Проверка связи:
+Ответь коротко:
+1. DeepSeek работает.
+2. Я вижу контекст MARKOV OS.
+3. Следующее действие Павла: ...
+`,
+
+    plan: `
+${base}
+
+Собери персональный план на ближайшие 30–90 минут.
+Учитывай состояние, текущий блок, PM, тело, блог и усталость после клиентов.
+Формат:
+1. Что сделать сейчас.
+2. Что сделать минимум.
+3. Что сделать на максимум.
+4. Чем подкрепить приятно.
+5. Что отметить в MARKOV OS.
+`,
+
+    pm: `
+${base}
+
+Выступи как PM-ментор.
+Дай:
+1. PM-задачу на сегодня.
+2. Артефакт, который нужно создать.
+3. Шаблон артефакта.
+4. 5 фраз на английском для IT PM.
+5. Мини-кейс для портфолио Павла.
+`,
+
+    content: `
+${base}
+
+Собери контент из текущего состояния Павла.
+Дай:
+1. Telegram-пост.
+2. Reels/Shorts сценарий на 30 секунд.
+3. 5 hooks.
+4. 3 stories.
+5. одну фразу в стиле MARKOVMADE.
+`,
+
+    shield: `
+${base}
+
+Павел сливается.
+Собери антисрыв-протокол:
+1. Диагностика причины.
+2. Самый маленький шаг.
+3. Жёсткая версия.
+4. Мягкая версия.
+5. Чем заменить телефон.
+6. Как закрыть день без вины.
+`,
+
+    review: `
+${base}
+
+Сделай вечерний review дня:
+1. Что засчитать как победу.
+2. Где был слив.
+3. Почему это произошло.
+4. Что улучшить завтра.
+5. Главная задача завтра.
+6. Фраза закрытия дня.
+`,
+
+    custom: `
+${base}
+
+Пользовательский запрос Павла:
+${customText || "Дай максимально полезный ответ по текущему состоянию MARKOV OS."}
+`
+  };
+
+  return prompts[kind] || prompts.custom;
+}
+
+async function callOpenModelDirect(prompt) {
+  const settings = getAiSettings();
+
+  const response = await fetch(settings.baseUrl.replace(/\/$/, "") + "/messages", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + settings.apiKey,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: settings.model,
+      max_tokens: settings.maxTokens,
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("OpenModel error " + response.status + ": " + errorText);
+  }
+
+  const data = await response.json();
+
+  if (data.content && data.content[0] && data.content[0].text) {
+    return data.content[0].text;
+  }
+
+  return JSON.stringify(data, null, 2);
+}
+
+async function callOpenModelProxy(prompt, kind) {
+  const settings = getAiSettings();
+
+  const response = await fetch(settings.proxyEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      kind,
+      prompt,
+      context: getAiContext(),
+      model: settings.model,
+      maxTokens: settings.maxTokens
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("Proxy error " + response.status + ": " + errorText);
+  }
+
+  const data = await response.json();
+
+  return data.text || JSON.stringify(data, null, 2);
+}
+
+async function runAi(kind) {
+  const settings = getAiSettings();
+  const customTextNode = document.getElementById("aiCustomText");
+  const output = document.getElementById("aiOutput");
+
+  const customText = customTextNode ? customTextNode.value : "";
+  const prompt = buildAiPrompt(kind, customText);
+
+  output.value = "AI думает. Запрос отправлен...";
+
+  try {
+    let text = "";
+
+    if (settings.mode === "direct") {
+      if (!settings.apiKey) {
+        throw new Error("В direct-режиме нужно вставить OpenModel API key.");
+      }
+
+      text = await callOpenModelDirect(prompt);
+    } else {
+      text = await callOpenModelProxy(prompt, kind);
+    }
+
+    output.value = text;
+    setField("aiLast", text);
+
+    toast("AI-ответ получен.");
+    renderArchive();
+  } catch (error) {
+    output.value =
+      "Ошибка AI-интеграции:\n\n" +
+      error.message +
+      "\n\nЧто проверить:\n" +
+      "1. Если direct mode — вставлен ли API key.\n" +
+      "2. Если proxy mode — запущен ли сервер npm start.\n" +
+      "3. Не упёрся ли ключ в лимит.\n" +
+      "4. Не заблокировал ли браузер CORS.\n";
+
+    toast("AI ошибка. Смотри вывод.");
+  }
+}
+
+function saveAiSettingsFromUi() {
+  const mode = document.getElementById("aiMode").value;
+  const proxyEndpoint = document.getElementById("aiProxyEndpoint").value.trim();
+  const baseUrl = document.getElementById("aiBaseUrl").value.trim();
+  const model = document.getElementById("aiModel").value.trim();
+  const maxTokens = document.getElementById("aiMaxTokens").value.trim();
+  const apiKey = document.getElementById("aiApiKey").value.trim();
+
+  setAiSetting("mode", mode);
+  setAiSetting("proxyEndpoint", proxyEndpoint);
+  setAiSetting("baseUrl", baseUrl);
+  setAiSetting("model", model);
+  setAiSetting("maxTokens", maxTokens);
+
+  if (apiKey) {
+    setAiSetting("apiKey", apiKey);
+  }
+
+  toast("AI-настройки сохранены локально.");
+  renderAi();
+}
+
+function clearAiKey() {
+  if (!state.ai) {
+    state.ai = {};
+  }
+
+  state.ai.apiKey = "";
+  save();
+  renderAi();
+  toast("AI-ключ удалён из localStorage.");
+}
+
+function renderAi() {
+  const settings = getAiSettings();
+
+  document.getElementById("ai").innerHTML = `
+    <div class="card gold hero-visual">
+      <span class="tag gold">🤖 DeepSeek · OpenModel · Anthropic Messages API</span>
+      <h2 class="serif" style="font-size:34px;margin:10px 0 8px">
+        AI-командный центр Павла
+      </h2>
+      <p class="muted">
+        Нейросеть встроена не как игрушка, а как персональный слой:
+        план, PM-наставник, контент, антисрыв, review и свой запрос.
+        Ключ не зашит в код.
+      </p>
+    </div>
+
+    <div class="ai-status-grid" style="margin-top:13px">
+      ${stat("Режим", settings.mode, "direct или proxy")}
+      ${stat("Модель", settings.model, "DeepSeek")}
+      ${stat("Max tokens", settings.maxTokens, "ответ")}
+      ${stat("Статус", aiConfigured() ? "Готов" : "Настроить", "подключение")}
+    </div>
+
+    <div class="grid g2" style="margin-top:13px">
+      <div class="card">
+        <h3>Настройки AI</h3>
+
+        <label>
+          <span>Режим</span>
+          <select id="aiMode">
+            <option value="proxy" ${settings.mode === "proxy" ? "selected" : ""}>Proxy server / безопаснее</option>
+            <option value="direct" ${settings.mode === "direct" ? "selected" : ""}>Direct browser / быстрый тест</option>
+          </select>
+        </label>
+
+        <label style="margin-top:12px">
+          <span>Proxy endpoint</span>
+          <input id="aiProxyEndpoint" value="${esc(settings.proxyEndpoint)}" placeholder="/api/ai">
+        </label>
+
+        <label style="margin-top:12px">
+          <span>OpenModel base URL</span>
+          <input id="aiBaseUrl" value="${esc(settings.baseUrl)}" placeholder="https://api.openmodel.ai/v1">
+        </label>
+
+        <label style="margin-top:12px">
+          <span>Model</span>
+          <input id="aiModel" value="${esc(settings.model)}" placeholder="deepseek-v4-flash">
+        </label>
+
+        <label style="margin-top:12px">
+          <span>Max tokens</span>
+          <input id="aiMaxTokens" value="${esc(settings.maxTokens)}" placeholder="1200">
+        </label>
+
+        <label style="margin-top:12px">
+          <span>API key для direct mode</span>
+          <input
+            id="aiApiKey"
+            class="ai-key-field"
+            type="password"
+            value=""
+            placeholder="${settings.apiKey ? "ключ сохранён локально; оставь пустым, чтобы не менять" : "om-..."}"
+          >
+        </label>
+
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" onclick="saveAiSettingsFromUi()">Сохранить</button>
+          <button class="btn red" onclick="clearAiKey()">Удалить ключ</button>
+        </div>
+
+        <div class="why" style="margin-top:12px">
+          <b>Безопасность:</b> лучший вариант — proxy + .env.
+          Direct mode удобен для теста, но ключ находится в браузере.
+        </div>
+      </div>
+
+      <div class="card blue">
+        <h3>Карта исходника</h3>
+
+        <div class="code-map">
+          <span>index.html — полный читаемый сайт</span>
+          <span>server.js — безопасный proxy к OpenModel</span>
+          <span>.env.example — место для ключа</span>
+          <span>test_openmodel.py — Python-проверка</span>
+          <span>README.md — инструкция запуска</span>
+        </div>
+
+        <div class="visual-divider"></div>
+
+        <p class="muted small">
+          В HTML нет зашитого ключа. Это принципиально:
+          ключ должен жить либо в поле direct-теста, либо в .env на proxy-сервере.
+        </p>
+      </div>
+    </div>
+
+    <div class="ai-command-grid" style="margin-top:13px">
+      ${renderAiCommandTile("✅ Проверить", "Короткий тест: отвечает ли DeepSeek и видит ли контекст.", "test")}
+      ${renderAiCommandTile("🧩 AI-план", "Собрать план на ближайшие 30–90 минут.", "plan")}
+      ${renderAiCommandTile("🧠 PM Coach", "PM-артефакт, кейс, English phrases.", "pm")}
+      ${renderAiCommandTile("✍️ Контент", "Пост, Reels, hooks, stories.", "content")}
+      ${renderAiCommandTile("🛡 Антисрыв", "Протокол, если Павел сливается.", "shield")}
+      ${renderAiCommandTile("📜 Review", "Вечерний разбор дня.", "review")}
+    </div>
+
+    <div class="grid g2" style="margin-top:13px">
+      <div class="card">
+        <h3>Свой запрос</h3>
+        <textarea id="aiCustomText" placeholder="Например: собери мне жёсткий план на завтра с PM, кардио, английским и контентом."></textarea>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" onclick="runAi('custom')">Отправить свой запрос</button>
+          <button class="btn" onclick="copyText(document.getElementById('aiOutput').value)">Скопировать ответ</button>
+        </div>
+      </div>
+
+      <div class="card green">
+        <h3>AI-ответ</h3>
+        <textarea id="aiOutput" class="ai-output" readonly>${esc(field("aiLast") || "AI-ответ появится здесь.")}</textarea>
+      </div>
+    </div>
+  `;
+}
+
+function renderAiCommandTile(title, description, kind) {
+  return `
+    <div class="command-tile">
+      <h4>${title}</h4>
+      <p>${description}</p>
+      <button class="btn primary" onclick="runAi('${kind}')">Запустить</button>
+    </div>
+  `;
+}
+
 function renderPM(){
   document.getElementById("pm").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🧠 PM Path</h2><p class="muted">Артефакты, кейсы, английская речь.</p><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="copyText(pmPrompt())">Скопировать PM-промт</button><button class="btn" onclick="mark('pm')">PM выполнен</button></div></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задача дня</h3><p class="taskText">${pmDaily()}</p><label><span>Артефакт</span><textarea onchange="setField('pmArtifact',this.value)">${esc(field("pmArtifact"))}</textarea></label></div><div class="card"><h3>Фразы</h3>${["Let me clarify the scope before we commit.","What is the current blocker?","Could you estimate this task?","Let's align on priorities."].map((p,i)=>stat("Phrase "+(i+1),p,"PM English")).join("")}</div></div>`
 }
@@ -1457,7 +2048,7 @@ function obsidianText(){
 }
 function renderArchive(){
   const logs=Object.values(state.logs).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
-  document.getElementById("archive").innerHTML=`<div class="grid g4">${stat("XP всего",xpTotal(),"накоплено")}${stat("XP сегодня",xpToday(),"сегодня")}${stat("Дней",Object.keys(state.logs).length,"в архиве")}${stat("Протоколы",Object.values(log().protocols).filter(x=>x.done).length+"/"+protocols.length,"сегодня")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Obsidian</h3><textarea id="obsidianBox" class="copybox" readonly>${esc(obsidianText())}</textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button><button class="btn" onclick="copyText(obsidianText())">Скопировать</button></div></div><div class="card"><h3>Архив дней</h3>${logs.map(l=>`<div class="check"><span>📜</span><span><b>${
+  document.getElementById("archive").innerHTML=`<div class="grid g4">${stat("XP всего",xpTotal(),"накоплено")}${stat("XP сегодня",xpToday(),"сегодня")}${stat("Дней",Object.keys(state.logs).length,"в архиве")}${stat("AI",aiConfigured()?"Готов":"Настроить","DeepSeek")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Obsidian</h3><textarea id="obsidianBox" class="copybox" readonly>${esc(obsidianText())}</textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button><button class="btn" onclick="copyText(obsidianText())">Скопировать</button></div></div><div class="card"><h3>Архив дней</h3>${logs.map(l=>`<div class="check"><span>📜</span><span><b>${
     l.date
   }
   </b><small>${
