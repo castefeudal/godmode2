@@ -1,1734 +1,520 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru" data-theme="black">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#050507" />
-  <title>MARKOV OS 3.0 — Павел Марков</title>
-  <style>
-    :root {
-      --bg: #050507;
-      --bg-soft: #0d0d10;
-      --surface: rgba(18,18,22,.94);
-      --surface-2: rgba(28,28,34,.96);
-      --surface-3: rgba(255,255,255,.045);
-      --text: #f4f1e8;
-      --muted: #afa99c;
-      --dim: #7f7a72;
-      --gold: #d4af37;
-      --gold-2: #ad8524;
-      --green: #79a978;
-      --red: #a04646;
-      --blue: #7d9acb;
-      --border: rgba(255,255,255,.10);
-      --gold-border: rgba(212,175,55,.28);
-      --shadow: 0 24px 70px rgba(0,0,0,.38);
-      --radius-xl: 26px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --font: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --serif: Georgia, "Times New Roman", serif;
-      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    }
-
-    html[data-theme="white"] {
-      --bg: #f4f1e9;
-      --bg-soft: #ebe6dc;
-      --surface: rgba(255,255,255,.88);
-      --surface-2: rgba(250,247,240,.96);
-      --surface-3: rgba(10,10,10,.045);
-      --text: #1b1a18;
-      --muted: #68625a;
-      --dim: #8a8378;
-      --gold: #9a741f;
-      --gold-2: #7a5a16;
-      --green: #477f52;
-      --red: #9c3f3f;
-      --blue: #3f648f;
-      --border: rgba(30,25,18,.12);
-      --gold-border: rgba(154,116,31,.28);
-      --shadow: 0 18px 50px rgba(50,40,25,.13);
-    }
-
-    * { box-sizing: border-box; }
-    html { background: var(--bg); scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--text);
-      font-family: var(--font);
-      background:
-        radial-gradient(circle at 12% -8%, rgba(212,175,55,.13), transparent 26rem),
-        radial-gradient(circle at 88% 0%, rgba(255,255,255,.05), transparent 28rem),
-        linear-gradient(145deg, var(--bg), var(--bg-soft));
-      overflow-x: hidden;
-    }
-
-    html[data-theme="white"] body {
-      background:
-        radial-gradient(circle at 10% -10%, rgba(154,116,31,.11), transparent 24rem),
-        linear-gradient(145deg, var(--bg), var(--bg-soft));
-    }
-
-    button, input, textarea, select { font: inherit; }
-    button { cursor: pointer; }
-    a { color: inherit; text-decoration: none; }
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      background: var(--surface-3);
-      color: var(--text);
-      padding: 12px 13px;
-      outline: none;
-    }
-    textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(212,175,55,.12);
-    }
-
-    .app {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 292px minmax(0, 1fr);
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 18px 14px;
-      border-right: 1px solid var(--border);
-      background: color-mix(in srgb, var(--bg) 82%, transparent);
-      backdrop-filter: blur(18px);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .brand {
-      border: 1px solid var(--gold-border);
-      border-radius: var(--radius-xl);
-      padding: 18px;
-      background: linear-gradient(145deg, rgba(212,175,55,.10), transparent), var(--surface);
-      box-shadow: var(--shadow);
-    }
-    .kicker {
-      color: var(--gold);
-      font-size: 10px;
-      letter-spacing: .26em;
-      text-transform: uppercase;
-    }
-    .brand h1 {
-      font-family: var(--serif);
-      margin: 8px 0 6px;
-      font-size: 34px;
-      line-height: .95;
-      letter-spacing: -.05em;
-    }
-    .brand p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .nav { display: grid; gap: 7px; }
-    .nav button {
-      border: 1px solid transparent;
-      border-radius: 15px;
-      background: transparent;
-      color: var(--muted);
-      padding: 11px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-align: left;
-      transition: .18s ease;
-    }
-    .nav button:hover, .nav button.active {
-      color: var(--text);
-      background: var(--surface-3);
-      border-color: var(--gold-border);
-    }
-    .nav .n {
-      width: 24px;
-      color: var(--gold);
-      font-size: 11px;
-      font-family: var(--mono);
-    }
-    .nav small { color: var(--dim); }
-
-    .side-actions {
-      margin-top: auto;
-      display: grid;
-      gap: 8px;
-    }
-
-    .main {
-      width: 100%;
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 20px 24px 100px;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      padding: 8px 0 16px;
-      background: linear-gradient(to bottom, var(--bg) 0%, color-mix(in srgb, var(--bg) 86%, transparent) 74%, transparent);
-      backdrop-filter: blur(12px);
-    }
-
-    .topline {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .title h2 {
-      margin: 0;
-      font-family: var(--serif);
-      font-size: clamp(26px, 3.4vw, 48px);
-      line-height: 1;
-      letter-spacing: -.045em;
-    }
-    .title p {
-      margin: 7px 0 0;
-      color: var(--muted);
-      line-height: 1.45;
-      max-width: 780px;
-      font-size: 14px;
-    }
-
-    .section { display: none; animation: fade .18s ease both; }
-    .section.active { display: block; }
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: none; }
-    }
-
-    .grid { display: grid; gap: 14px; }
-    .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-    .card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      background: var(--surface);
-      box-shadow: var(--shadow);
-      padding: 18px;
-      overflow: hidden;
-    }
-    .card.gold {
-      border-color: var(--gold-border);
-      background: linear-gradient(145deg, rgba(212,175,55,.11), transparent), var(--surface);
-    }
-    .card.green {
-      border-color: color-mix(in srgb, var(--green) 38%, transparent);
-      background: linear-gradient(145deg, color-mix(in srgb, var(--green) 12%, transparent), transparent), var(--surface);
-    }
-    .card.red {
-      border-color: color-mix(in srgb, var(--red) 45%, transparent);
-      background: linear-gradient(145deg, color-mix(in srgb, var(--red) 12%, transparent), transparent), var(--surface);
-    }
-
-    h3 {
-      margin: 0 0 10px;
-      color: var(--gold);
-      font-size: 12px;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-    }
-    h4 { margin: 0 0 7px; }
-    .serif { font-family: var(--serif); }
-    .mono { font-family: var(--mono); }
-    .muted { color: var(--muted); }
-    .dim { color: var(--dim); }
-    .small { font-size: 13px; line-height: 1.5; }
-    .mini { font-size: 12px; line-height: 1.45; }
-
-    .btn {
-      border: 1px solid var(--gold-border);
-      border-radius: var(--radius-md);
-      background: var(--surface-3);
-      color: var(--text);
-      min-height: 42px;
-      padding: 10px 13px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: .18s ease;
-      text-align: center;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-      background: color-mix(in srgb, var(--gold) 12%, transparent);
-    }
-    .btn.primary {
-      background: linear-gradient(135deg, var(--gold), var(--gold-2));
-      border-color: transparent;
-      color: #0b0b0b;
-      font-weight: 800;
-    }
-    html[data-theme="white"] .btn.primary { color: #fff9e8; }
-    .btn.ghost { border-color: var(--border); color: var(--muted); background: transparent; }
-    .btn.red { border-color: color-mix(in srgb, var(--red) 55%, transparent); background: color-mix(in srgb, var(--red) 12%, transparent); }
-    .btn.green { border-color: color-mix(in srgb, var(--green) 50%, transparent); background: color-mix(in srgb, var(--green) 12%, transparent); }
-    .actions { display: flex; flex-wrap: wrap; gap: 9px; }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface-3);
-      color: var(--muted);
-      padding: 5px 9px;
-      font-size: 12px;
-    }
-    .tag.gold { color: var(--gold); border-color: var(--gold-border); background: color-mix(in srgb, var(--gold) 8%, transparent); }
-    .tag.green { color: var(--green); border-color: color-mix(in srgb, var(--green) 42%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
-    .tag.red { color: var(--red); border-color: color-mix(in srgb, var(--red) 45%, transparent); background: color-mix(in srgb, var(--red) 10%, transparent); }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) 370px;
-      gap: 14px;
-    }
-
-    .clockRow {
-      display: grid;
-      grid-template-columns: auto minmax(0,1fr);
-      gap: 16px;
-      align-items: center;
-      margin: 10px 0 14px;
-    }
-    .clock {
-      font-family: var(--mono);
-      font-size: clamp(36px, 4.8vw, 64px);
-      line-height: 1;
-      letter-spacing: -.07em;
-      white-space: nowrap;
-    }
-    .dateLine {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    .taskTitle {
-      margin: 0 0 10px;
-      font-size: clamp(24px, 3.2vw, 44px);
-      line-height: 1.04;
-      letter-spacing: -.04em;
-      font-family: var(--serif);
-    }
-    .taskText {
-      margin: 0 0 14px;
-      color: var(--text);
-      font-size: clamp(16px, 1.5vw, 20px);
-      line-height: 1.35;
-    }
-    .why {
-      border-left: 2px solid var(--gold);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
-      background: color-mix(in srgb, var(--gold) 7%, transparent);
-      padding: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .stat {
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--surface-3);
-      padding: 13px;
-    }
-    .stat .label {
-      color: var(--gold);
-      font-size: 10px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    .stat .value {
-      margin-top: 7px;
-      font-family: var(--mono);
-      font-size: 22px;
-    }
-    .stat .hint {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-    }
-
-    .ring {
-      --p: 0;
-      width: 158px;
-      height: 158px;
-      border-radius: 50%;
-      margin: 0 auto 12px;
-      background: conic-gradient(var(--gold) calc(var(--p) * 1%), color-mix(in srgb, var(--text) 10%, transparent) 0);
-      position: relative;
-      display: grid;
-      place-items: center;
-    }
-    .ring:before {
-      content: "";
-      position: absolute;
-      width: 76%;
-      height: 76%;
-      border-radius: 50%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-    }
-    .ring span {
-      position: relative;
-      font-family: var(--mono);
-      font-size: 27px;
-    }
-    .bar {
-      height: 10px;
-      background: color-mix(in srgb, var(--text) 9%, transparent);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .bar i {
-      display: block;
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, var(--gold-2), var(--gold));
-      border-radius: 999px;
-    }
-
-    .checklist { display: grid; gap: 8px; }
-    .check {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      background: var(--surface-3);
-      padding: 11px;
-      min-height: 52px;
-    }
-    .check.current {
-      border-color: var(--gold-border);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 9%, transparent);
-      background: color-mix(in srgb, var(--gold) 8%, transparent);
-    }
-    .check.done {
-      border-color: color-mix(in srgb, var(--green) 42%, transparent);
-      background: color-mix(in srgb, var(--green) 9%, transparent);
-    }
-    .check input { width: 19px; height: 19px; accent-color: var(--gold); }
-    .check small { display: block; color: var(--muted); margin-top: 3px; line-height: 1.35; }
-    .stamp {
-      min-width: 72px;
-      text-align: right;
-      color: var(--gold);
-      font-family: var(--mono);
-      font-size: 11px;
-    }
-
-    .timeline { display: grid; gap: 11px; }
-    .timeblock {
-      display: grid;
-      grid-template-columns: 110px minmax(0, 1fr) 230px;
-      gap: 13px;
-      align-items: center;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      background: var(--surface);
-      padding: 13px;
-    }
-    .timeblock.current {
-      border-color: var(--gold-border);
-      background: color-mix(in srgb, var(--gold) 8%, transparent);
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 7%, transparent);
-    }
-    .timeblock.done { opacity: .76; }
-    .time {
-      color: var(--gold);
-      font-family: var(--mono);
-      font-size: 13px;
-    }
-
-    label {
-      display: grid;
-      gap: 7px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    label span {
-      color: var(--gold);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .14em;
-    }
-
-    table { width: 100%; border-collapse: collapse; }
-    th, td {
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid var(--border);
-      padding: 11px;
-    }
-    th {
-      color: var(--gold);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .13em;
-    }
-    td { color: var(--muted); }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 90;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(0,0,0,.68);
-    }
-    html[data-theme="white"] .modal { background: rgba(0,0,0,.38); }
-    .modal.active { display: flex; }
-    .modalCard {
-      width: min(980px, 100%);
-      max-height: 88vh;
-      overflow: auto;
-      border: 1px solid var(--gold-border);
-      border-radius: var(--radius-xl);
-      background: var(--surface-2);
-      box-shadow: var(--shadow);
-      padding: 20px;
-    }
-
-    .toast {
-      position: fixed;
-      right: 22px;
-      bottom: 22px;
-      z-index: 120;
-      display: none;
-      max-width: min(520px, calc(100vw - 44px));
-      border: 1px solid var(--gold-border);
-      border-radius: 16px;
-      background: var(--surface-2);
-      box-shadow: var(--shadow);
-      padding: 13px 15px;
-      color: var(--text);
-      line-height: 1.4;
-    }
-    .toast.active { display: block; animation: toast .18s ease both; }
-    @keyframes toast {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .mobilebar { display: none; }
-    .copybox {
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.55;
-      min-height: 165px;
-      white-space: pre-wrap;
-    }
-
-    .focusBox {
-      display: none;
-      border: 1px solid var(--gold-border);
-      background: color-mix(in srgb, var(--gold) 7%, transparent);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      margin-top: 12px;
-    }
-    .focusBox.active { display: block; }
-    .focusTime {
-      font-family: var(--mono);
-      font-size: 32px;
-      line-height: 1;
-      color: var(--gold);
-    }
-
-    @media (max-width: 1150px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .main { padding: 14px 12px 92px; }
-      .topline, .hero, .g2, .g3, .g4 { grid-template-columns: 1fr; }
-      .timeblock { grid-template-columns: 1fr; }
-      .clockRow { grid-template-columns: 1fr; gap: 8px; }
-      .card { padding: 15px; border-radius: 20px; }
-      .mobilebar {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 70;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 4px;
-        padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-        border-top: 1px solid var(--border);
-        background: color-mix(in srgb, var(--bg) 88%, transparent);
-        backdrop-filter: blur(18px);
-      }
-      .mobilebar button {
-        border: 0;
-        background: transparent;
-        color: var(--muted);
-        border-radius: 12px;
-        padding: 8px 4px;
-        font-size: 11px;
-      }
-      .mobilebar button.active {
-        color: var(--gold);
-        background: color-mix(in srgb, var(--gold) 9%, transparent);
-      }
-    }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050507"><title>MARKOV OS 7.0 — Personal Command</title>
+<style>
+:root{--bg:#050507;--bg2:#0b0b0f;--card:#141419;--card2:#1e1e25;--soft:rgba(255,255,255,.045);--text:#f4f1e8;--muted:#b5aea0;--dim:#837d73;--gold:#d4af37;--gold2:#a77c20;--green:#7aae7c;--red:#a84d4d;--blue:#7d9bd0;--bd:rgba(255,255,255,.1);--gbd:rgba(212,175,55,.32);--shadow:0 22px 60px rgba(0,0,0,.34);--r:24px;--r2:16px;--font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--serif:Georgia,"Times New Roman",serif;--mono:"SFMono-Regular",Consolas,monospace;--safe:env(safe-area-inset-bottom,0px)}
+html[data-theme=white]{--bg:#f5f1e8;--bg2:#e9e3d8;--card:#fffdf8;--card2:#f6f0e6;--soft:rgba(28,22,15,.045);--text:#1d1a16;--muted:#676056;--dim:#8b8378;--gold:#98701d;--gold2:#765414;--green:#477e50;--red:#963f3f;--blue:#3e658e;--bd:rgba(35,28,20,.13);--gbd:rgba(152,112,29,.3);--shadow:0 16px 44px rgba(60,45,25,.12)}
+*{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--text);font-family:var(--font);background:radial-gradient(circle at 10% -8%,rgba(212,175,55,.13),transparent 27rem),radial-gradient(circle at 90% -5%,rgba(255,255,255,.055),transparent 30rem),linear-gradient(145deg,var(--bg),var(--bg2));overflow-x:hidden}button,input,textarea,select{font:inherit}button{cursor:pointer}input,textarea,select{width:100%;border:1px solid var(--bd);background:var(--soft);color:var(--text);border-radius:14px;padding:12px 13px;outline:none}textarea{min-height:104px;resize:vertical;line-height:1.48}input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.11)}
+.app{min-height:100vh;display:grid;grid-template-columns:292px minmax(0,1fr)}.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;padding:16px 13px;border-right:1px solid var(--bd);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:13px}.brand,.card{border:1px solid var(--bd);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);padding:17px;overflow:hidden}.brand,.card.gold{border-color:var(--gbd);background:linear-gradient(145deg,rgba(212,175,55,.10),transparent),var(--card)}.card.green{border-color:color-mix(in srgb,var(--green) 42%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--green) 11%,transparent),transparent),var(--card)}.card.red{border-color:color-mix(in srgb,var(--red) 45%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--red) 12%,transparent),transparent),var(--card)}.card.blue{border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--blue) 10%,transparent),transparent),var(--card)}.kicker{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.26em}.brand h1{margin:8px 0 6px;font-family:var(--serif);font-size:32px;line-height:.96;letter-spacing:-.05em}.brand p{margin:0;color:var(--muted);font-size:13px;line-height:1.48}.nav{display:grid;gap:7px}.nav button{border:1px solid transparent;background:transparent;color:var(--muted);padding:10px 11px;border-radius:15px;text-align:left;display:flex;gap:10px;align-items:center;transition:.18s}.nav button:hover,.nav button.active{color:var(--text);border-color:var(--gbd);background:var(--soft)}.nav .n{width:25px;color:var(--gold);font-size:19px;text-align:center}.nav small{color:var(--dim)}.side-actions{margin-top:auto;display:grid;gap:8px}.main{max-width:1500px;width:100%;margin:0 auto;padding:18px 22px 112px}.topbar{position:sticky;top:0;z-index:30;padding:7px 0 14px;background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 76%,transparent);backdrop-filter:blur(12px)}.topline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}.title h2{margin:0;font-family:var(--serif);font-size:clamp(25px,3.2vw,46px);line-height:1;letter-spacing:-.045em}.title p{margin:7px 0 0;color:var(--muted);font-size:14px;line-height:1.42;max-width:860px}.section{display:none;animation:fade .18s ease both}.section.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.grid{display:grid;gap:13px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}h3{margin:0 0 10px;color:var(--gold);font-size:12px;text-transform:uppercase;letter-spacing:.15em}h4{margin:0 0 7px}.serif{font-family:var(--serif)}.mono{font-family:var(--mono)}.muted{color:var(--muted)}.dim{color:var(--dim)}.small{font-size:13px;line-height:1.48}.mini{font-size:12px;line-height:1.42}
+.btn{border:1px solid var(--gbd);background:var(--soft);color:var(--text);border-radius:14px;min-height:40px;padding:9px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;transition:.18s}.btn:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--gold) 12%,transparent)}.btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0b0b;font-weight:800;border-color:transparent}html[data-theme=white] .btn.primary{color:#fff8e8}.btn.ghost{border-color:var(--bd);background:transparent;color:var(--muted)}.btn.red{border-color:color-mix(in srgb,var(--red) 55%,transparent);background:color-mix(in srgb,var(--red) 12%,transparent)}.btn.green{border-color:color-mix(in srgb,var(--green) 50%,transparent);background:color-mix(in srgb,var(--green) 12%,transparent)}.actions{display:flex;gap:8px;flex-wrap:wrap}.tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:999px;background:var(--soft);color:var(--muted);padding:5px 8px;font-size:12px}.tag.gold{color:var(--gold);border-color:var(--gbd);background:color-mix(in srgb,var(--gold) 8%,transparent)}.tag.green{color:var(--green);border-color:color-mix(in srgb,var(--green) 42%,transparent);background:color-mix(in srgb,var(--green) 10%,transparent)}.tag.red{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent);background:color-mix(in srgb,var(--red) 10%,transparent)}.hero{display:grid;grid-template-columns:minmax(0,1.18fr) 360px;gap:13px}.clockRow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;margin:10px 0 13px}.clock{font-family:var(--mono);font-size:clamp(34px,4.4vw,60px);line-height:1;letter-spacing:-.065em;white-space:nowrap}.dateLine{color:var(--muted);font-size:13px;line-height:1.48}.taskTitle{margin:0 0 10px;font-family:var(--serif);font-size:clamp(24px,3vw,40px);line-height:1.04;letter-spacing:-.04em}.taskText{margin:0 0 13px;color:var(--text);font-size:clamp(16px,1.4vw,19px);line-height:1.35}.why{border-left:2px solid var(--gold);border-radius:0 14px 14px 0;background:color-mix(in srgb,var(--gold) 7%,transparent);padding:12px;color:var(--muted);line-height:1.48;font-size:14px}.stat{border:1px solid var(--bd);border-radius:15px;background:var(--soft);padding:12px}.stat .label{color:var(--gold);font-size:10px;letter-spacing:.14em;text-transform:uppercase}.stat .value{margin-top:7px;font-family:var(--mono);font-size:21px}.stat .hint{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.35}.ring{--p:0;width:152px;height:152px;border-radius:50%;margin:0 auto 12px;background:conic-gradient(var(--gold) calc(var(--p)*1%),color-mix(in srgb,var(--text) 10%,transparent) 0);position:relative;display:grid;place-items:center}.ring:before{content:"";position:absolute;width:76%;height:76%;border-radius:50%;background:var(--card2);border:1px solid var(--bd)}.ring span{position:relative;font-family:var(--mono);font-size:26px}.bar{height:10px;border:1px solid var(--bd);background:color-mix(in srgb,var(--text) 8%,transparent);border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:999px}.checklist{display:grid;gap:8px}.check{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--bd);border-radius:15px;background:var(--soft);padding:10px;min-height:50px}.check.current{border-color:var(--gbd);background:color-mix(in srgb,var(--gold) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)}.check.done{border-color:color-mix(in srgb,var(--green) 42%,transparent);background:color-mix(in srgb,var(--green) 9%,transparent)}.check input{width:19px;height:19px;accent-color:var(--gold)}.check small{display:block;color:var(--muted);margin-top:3px;line-height:1.35}.stamp{min-width:76px;text-align:right;color:var(--dim);font-family:var(--mono);font-size:11px}.stamp.done{color:var(--green);font-weight:800;background:color-mix(in srgb,var(--green) 12%,transparent);padding:5px 7px;border-radius:999px}.stamp.current{color:var(--gold);font-weight:800}.segment{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 13px}.seg{border:1px solid var(--bd);border-radius:999px;background:var(--soft);color:var(--muted);padding:8px 11px;font-size:13px}.seg.active{color:var(--text);border-color:var(--gbd);background:color-mix(in srgb,var(--gold) 10%,transparent)}.timeline{display:grid;gap:10px}.timeblock{display:grid;grid-template-columns:105px minmax(0,1fr) 220px;gap:12px;align-items:center;border:1px solid var(--bd);border-radius:var(--r2);background:var(--card);padding:12px}.timeblock.current{border-color:var(--gbd);background:color-mix(in srgb,var(--gold) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)}.timeblock.done{opacity:.78}.time{font-family:var(--mono);color:var(--gold);font-size:13px}label{display:grid;gap:7px;color:var(--muted);font-size:13px}label span{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.14em}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--bd);padding:10px}th{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.13em}td{color:var(--muted)}.copybox{font-family:var(--mono);font-size:12px;line-height:1.55;min-height:160px;white-space:pre-wrap}.focusBox{display:none;border:1px solid var(--gbd);background:color-mix(in srgb,var(--gold) 7%,transparent);border-radius:var(--r2);padding:13px;margin-top:12px}.focusBox.active{display:block}.focusTime{font-family:var(--mono);font-size:30px;color:var(--gold)}.mobilebar,.mobileFab{display:none}.modal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.68)}html[data-theme=white] .modal{background:rgba(0,0,0,.38)}.modal.active{display:flex}.modalCard{width:min(980px,100%);max-height:88vh;overflow:auto;border:1px solid var(--gbd);border-radius:var(--r);background:var(--card2);box-shadow:var(--shadow);padding:18px}.toast{position:fixed;right:20px;bottom:20px;z-index:120;display:none;max-width:min(520px,calc(100vw - 40px));border:1px solid var(--gbd);border-radius:15px;background:var(--card2);box-shadow:var(--shadow);padding:13px 14px;color:var(--text);line-height:1.4}.toast.active{display:block;animation:toast .18s ease both}@keyframes toast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.timeAccent{color:var(--gold);font-family:var(--mono);font-weight:800}.timerChip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-border);border-radius:999px;padding:6px 9px;background:color-mix(in srgb,var(--gold) 8%,transparent);color:var(--gold);font-family:var(--mono);font-size:12px}.impact{display:grid;gap:9px}.impactItem{border:1px solid var(--border);background:var(--card-3);border-radius:15px;padding:12px}.impactItem b{color:var(--text)}.levelBadge{display:inline-flex;border:1px solid var(--gold-border);border-radius:999px;padding:7px 10px;background:color-mix(in srgb,var(--gold) 9%,transparent);color:var(--gold);font-weight:800}.miniTimer{display:block;margin-top:3px;color:var(--dim);font-size:10px;line-height:1.1}.forecastGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}@media(max-width:1150px){.forecastGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecastGrid .stat:first-child{grid-column:1/-1}.check{grid-template-columns:auto minmax(0,1fr) 82px}.stamp{min-width:70px}.hero .actions .btn{flex:1 1 calc(50% - 8px)}}@media(max-width:1150px){.app{grid-template-columns:1fr}.sidebar{display:none}.main{padding:12px 11px 98px}.topline,.hero,.g2,.g3,.g4{grid-template-columns:1fr}.timeblock{grid-template-columns:1fr}.timeblock .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.clockRow{grid-template-columns:1fr;gap:7px}.card{padding:14px;border-radius:20px}.title h2{font-size:30px}.title p{font-size:13px}.taskTitle{font-size:28px}.topbar .actions{display:none}.mobileFab{position:fixed;right:14px;bottom:calc(76px + var(--safe));z-index:78;width:58px;height:58px;border-radius:50%;border:1px solid var(--gbd);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0b0b;font-weight:900;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:22px}.mobilebar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px 8px calc(8px + var(--safe));border-top:1px solid var(--bd);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(18px)}.mobilebar button{border:0;background:transparent;color:var(--muted);border-radius:12px;padding:7px 4px;font-size:10px;line-height:1.1}.mobilebar button .mi{display:block;font-size:18px;margin-bottom:3px}.mobilebar button.active{color:var(--gold);background:color-mix(in srgb,var(--gold) 9%,transparent)}}
+</style>
 </head>
-
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="kicker">MARKOV OS 3.0</div>
-        <h1>Autopilot</h1>
-        <p>Чёрная/белая тема, текущее время, текущая задача, подсветка активного блока, Obsidian, TickTick, тело, PM и контент.</p>
-      </div>
-      <nav class="nav" id="nav"></nav>
-      <div class="side-actions">
-        <button class="btn primary" onclick="openCurrentTask()">Выполнить текущее</button>
-        <button class="btn red" onclick="showRecovery()">Я сливаюсь</button>
-        <button class="btn" onclick="openWhy()">Зачем всё это?</button>
-        <button class="btn ghost" onclick="toggleTheme()">Чёрная / Белая</button>
-      </div>
-    </aside>
+<div class="app"><aside class="sidebar"><div class="brand"><div class="kicker">MARKOV OS 7.0</div><h1>Personal Command</h1><p>Мобильный личный штаб: таймеры под каждую задачу, прогноз результата, протоколы слива, автоматизации, тело, PM, контент и архив.</p></div><nav class="nav" id="nav"></nav><div class="side-actions"><button class="btn primary" onclick="openCurrentTask()">⚡ Текущее действие</button><button class="btn red" onclick="showRecovery()">🛡 Протокол слива</button><button class="btn" onclick="openWhy()">🔥 Зачем всё это</button><button class="btn ghost" onclick="toggleTheme()">◐ Чёрная / Белая</button></div></aside><main class="main"><header class="topbar"><div class="topline"><div class="title"><h2 id="pageTitle">Сегодня</h2><p id="pageSubtitle">Текущее время, активная миссия, ближайший шаг, смысл и отметка выполнения.</p></div><div class="actions"><button class="btn primary" onclick="openCurrentTask()">⚡ Текущее</button><button class="btn red" onclick="showRecovery()">🛡 Сливаюсь</button><button class="btn" onclick="openWhy()">🔥 Зачем</button><button class="btn ghost" onclick="toggleTheme()">◐ Тема</button></div></div></header><section class="section active" id="today"></section><section class="section" id="protocols"></section><section class="section" id="formats"></section><section class="section" id="timeline"></section><section class="section" id="future"></section><section class="section" id="automation"></section><section class="section" id="pm"></section><section class="section" id="body"></section><section class="section" id="content"></section><section class="section" id="rituals"></section><section class="section" id="archive"></section></main></div>
+<button class="mobileFab" onclick="openCurrentTask()">⚡</button><div class="mobilebar" id="mobilebar"></div>
+<div class="modal" id="taskModal" onclick="if(event.target.id==='taskModal')closeTaskModal()"><div class="modalCard"><div class="grid g2"><div><h2 class="serif" id="taskModalTitle" style="font-size:32px;margin:0 0 8px">Текущая задача</h2><p class="muted" id="taskModalSub">Минимальная версия засчитывается.</p></div><div class="actions" style="justify-content:flex-end"><button class="btn ghost" onclick="closeTaskModal()">Закрыть</button></div></div><div class="card gold" style="margin-top:13px"><h3>Сделать сейчас</h3><p class="taskText" id="taskModalAction"></p><div class="why" id="taskModalWhy"></div><div class="focusBox" id="focusBox"><span class="tag gold">Фокус запущен</span><div class="focusTime" id="focusTimer">05:00</div><p class="muted small">Минимум уже считается победой. Просто держи задачу открытой.</p></div><div class="actions" style="margin-top:13px"><button class="btn primary" id="taskDoneBtn">✅ Выполнил</button><button class="btn" onclick="startFocus(5)">⏱ 5 минут</button><button class="btn" onclick="startFocus(25)">⏱ 25 минут</button><button class="btn primary" onclick="startTaskFocus()">⏳ Таймер задачи</button><button class="btn red" onclick="showRecovery()">🛡 Сливаюсь</button></div></div></div></div>
+<div class="modal" id="recoveryModal" onclick="if(event.target.id==='recoveryModal')closeRecovery()"><div class="modalCard"><div class="grid g2"><div><h2 class="serif" style="font-size:32px;margin:0 0 8px">Протокол слива</h2><p class="muted">Выбери состояние. Система даст конкретные шаги, а не абстрактную мотивацию.</p></div><div class="actions" style="justify-content:flex-end"><button class="btn ghost" onclick="closeRecovery()">Закрыть</button></div></div><div class="grid g3" id="recoveryGrid" style="margin-top:13px"></div><div class="card gold" style="margin-top:13px"><h3>Практический протокол</h3><p class="taskText" id="recoveryAction">Открыть текущую задачу на 5 минут.</p><div class="why" id="recoveryWhy">Зачем: ты тренируешь возвращение в систему, а не идеальный день.</div><div class="actions" style="margin-top:13px"><button class="btn primary" onclick="completeRecovery()">✅ Выполнил протокол</button><button class="btn" onclick="setMode('minimum')">Минимум</button><button class="btn" onclick="setMode('soft')">Мягко</button><button class="btn red" onclick="setMode('hard')">Жёстко</button></div></div></div></div>
+<div class="modal" id="whyModal" onclick="if(event.target.id==='whyModal')closeWhy()"><div class="modalCard"><div class="grid g2"><div><h2 class="serif" style="font-size:32px;margin:0 0 8px">Зачем всё это</h2><p class="muted">Каждое действие — кирпич в 2-месячную сборку: PM, деньги, тело, блог, языки, творчество и вера.</p></div><div class="actions" style="justify-content:flex-end"><button class="btn ghost" onclick="closeWhy()">Закрыть</button></div></div><div class="grid g2" id="whyGrid" style="margin-top:13px"></div></div></div><div class="toast" id="toast"></div>
+<script>
+const KEY='MARKOV_OS_5_FEODAL_COMMAND';
+const navItems=[['today','🏰','Сегодня','главный экран'],['protocols','🛡️','Протоколы','когда сливаюсь'],['timeline','⏱️','Таймлайн','по времени'],['future','🚀','Прогноз','что будет через 60 дней'],['automation','🤖','Авто','связки поведения'],['formats','⚔️','Форматы','минимум / норма / максимум'],['pm','🧠','PM','карьера'],['body','🏋️','Тело','сушка'],['content','✍️','Контент','публикации'],['rituals','🙏','Ритуалы','утро / ночь'],['archive','📜','Архив','дни и экспорт']];
+const tasks=[
+{id:'water',icon:'💧',group:'Запуск',time:'11:00',title:'Вода',xp:5,min:'Выпить воду. Запустить тело.',why:'День начинается с управляемого действия, а не с телефона.',result:'Ты входишь в режим человека-системы.',bundle:'После подъёма. Спокойный трек на 2 минуты.'},{id:'suppMorning',icon:'🧬',group:'Запуск',time:'11:02',title:'БАДЫ УТРО',xp:5,min:'Принять свой утренний стек.',why:'Это слот запуска. Состав ты знаешь сам.',result:'Меньше забывания, больше автоматизма.',bundle:'Вода открывает слот добавок.'},{id:'prayerMorning',icon:'🙏',group:'Запуск',time:'11:05',title:'Молитва утром',xp:10,min:'60–90 секунд молитвы.',why:'Тебе важны глубина, смысл и внутренняя опора.',result:'День начинается с миссии.',bundle:'После БАДов, без телефона.'},{id:'breathMorning',icon:'🌬️',group:'Запуск',time:'11:08',title:'Дыхание утром',xp:10,min:'3–4 минуты или 10 циклов.',why:'Снижает шум и облегчает вход в PM.',result:'Меньше импульса уйти в телефон.',bundle:'После молитвы, под тихую музыку.'},{id:'plan',icon:'🧭',group:'Фокус',time:'11:50',title:'План дня',xp:10,min:'Выбрать 3 главные миссии.',why:'Без плана день забирают клиенты, быт и телефон.',result:'Ты видишь маршрут дня.',bundle:'После еды. Галочка запускает день.'},{id:'pm',icon:'🧠',group:'Будущее',time:'12:10',title:'PM Deep Work',xp:50,min:'10 минут минимум. 60–75 минут норма.',why:'Это мост к Middle+/Senior-style PM.',result:'Кейсы, портфолио, речь PM, собеседования.',bundle:'Кофе/кола зеро + чистый стол + таймер.'},{id:'english',icon:'🗣️',group:'Будущее',time:'13:25',title:'English PM Speaking',xp:30,min:'5 фраз вслух.',why:'Нужен рабочий голос на IT PM-созвоне.',result:'Ты говоришь про scope, risks, blockers, deadlines.',bundle:'Говорить стоя или ходя.'},{id:'contentIdea',icon:'✍️',group:'Контент',time:'13:45',title:'1 мысль в Obsidian',xp:15,min:'Записать одну мысль.',why:'Контент начинается не с камеры, а с мысли.',result:'60 мыслей за 2 месяца = сырьё для блога.',bundle:'После English или после кардио.'},{id:'languageMeal',icon:'🌍',group:'Языки',time:'за едой',title:'Spanish / Chinese',xp:10,min:'10–15 минут за едой.',why:'Ты заменяешь мусорные ролики когнитивной прокачкой.',result:'Языки растут без отдельного тяжёлого блока.',bundle:'Еда открывает язык.'},{id:'work',icon:'💰',group:'Деньги',time:'16:00–22:00',title:'Работа / деньги',xp:30,min:'Выполнить рабочий блок.',why:'Деньги — один из главных приоритетов.',result:'Финансовая база и ресурс.',bundle:'Это блок монетизации личности.'},{id:'strength',icon:'🏋️',group:'Тело',time:'16:00–22:00',title:'Силовая тренировка',xp:30,min:'Силовая внутри окна работы.',why:'Тело — часть бренда, силы и уверенности.',result:'Сушка без потери мышц и плотности.',bundle:'Тренировка встроена между клиентами.'},{id:'cardio',icon:'📺',group:'Тело',time:'22:30',title:'Кардио + YouTube',xp:20,min:'25 минут кардио.',why:'Приятное тянет полезное. Эта привычка уже работает.',result:'Сушка, сердце, расход энергии, стабильность.',bundle:'YouTube только на кардио/прогулке/быту.'},{id:'postCardioNote',icon:'💡',group:'Контент',time:'23:00',title:'Мысль после кардио',xp:10,min:'1 голосовая или 1 строка.',why:'После кардио часто появляются чистые мысли.',result:'Контент-пул растёт без насилия.',bundle:'Душ открывает фиксацию мысли.'},{id:'creative',icon:'🎧',group:'Творчество',time:'00:15',title:'Творчество',xp:25,min:'15 минут книги, блога или SUNO.',why:'Творчество собирает личный бренд.',result:'Каста, книга, музыка и сценарии получают топливо.',bundle:'Награда после базы.'},{id:'review',icon:'📜',group:'Закрытие',time:'01:45',title:'Вечерний разбор',xp:20,min:'3 строки: сделал / слил / завтра.',why:'Без review опыт не превращается в рост.',result:'Ты видишь прогресс и слабые места.',bundle:'Низкий свет, чай, тишина.'},{id:'suppNight',icon:'🌙',group:'Закрытие',time:'02:10',title:'БАДЫ НОЧЬ',xp:5,min:'Принять свой ночной стек.',why:'Это слот выключения системы.',result:'Меньше забывания, лучше закрытие дня.',bundle:'После review.'},{id:'prayerNight',icon:'🙏',group:'Закрытие',time:'02:12',title:'Молитва на ночь',xp:10,min:'60 секунд молитвы.',why:'Закрывает день без чувства вины.',result:'Психика получает точку завершения.',bundle:'После ночных БАДов.'},{id:'breathNight',icon:'🌬️',group:'Закрытие',time:'02:15',title:'Дыхание на ночь',xp:10,min:'3–4 минуты.',why:'Снимает возбуждение после дня.',result:'Выше шанс лечь до 03:00.',bundle:'Лёжа, без героизма.'},{id:'sleep',icon:'🛌',group:'Закрытие',time:'03:00',title:'Сон до 03:00',xp:25,min:'Закрыть экраны и лечь.',why:'Сон — главный множитель PM, тела и восстановления.',result:'Завтра выше КПД.',bundle:'Финальный сейв персонажа.'}
+];
+const durationMap={water:2,suppMorning:2,prayerMorning:2,breathMorning:4,plan:10,pm:75,english:20,contentIdea:10,languageMeal:12,work:360,strength:75,cardio:25,postCardioNote:3,creative:60,review:10,suppNight:2,prayerNight:2,breathNight:4,sleep:480};function taskDuration(t){return durationMap[t?.id]||5}const blocks=[['11:00','Запуск',['water','suppMorning','prayerMorning','breathMorning']],['11:30','Еда + язык',['languageMeal']],['11:50','План',['plan']],['12:10','PM Deep Work',['pm']],['13:25','English',['english']],['13:45','Контент',['contentIdea']],['16:00–22:00','Деньги + тело',['work','strength']],['22:30','Кардио',['cardio']],['23:00','Душ + мысль',['postCardioNote']],['00:15','Творчество',['creative']],['01:45','Review',['review']],['02:10','Закрытие',['suppNight','prayerNight','breathNight']],['03:00','Сон',['sleep']]];
+const protocols=[{id:'phone',icon:'📱',title:'Телефон / скролл',trigger:'Тянет открыть YouTube, Shorts, ленту или просто исчезнуть.',steps:['Положить телефон экраном вниз на 5 минут.','Открыть текущую задачу в MARKOV OS.','Сделать 5 минут минимума.','После минимума разрешить 10–30 минут приятного без вины.'],phrase:'Телефон — награда, не хозяин.',mode:'hard'},{id:'fatigue',icon:'😮‍💨',title:'Усталость после клиентов',trigger:'Нет ресурса после работы, хочется лечь и исчезнуть.',steps:['Не спорить с усталостью.','Сделать кардио легче, но не отменять.','Творчество сократить до 15 минут или убрать.','Review сделать в 3 строки.'],phrase:'Минимум сохраняет день.',mode:'soft'},{id:'noenergy',icon:'🪫',title:'Нет сил вообще',trigger:'Ощущение пустого аккумулятора.',steps:['Вода.','10 циклов дыхания.','Одна задача на 5 минут.','Если не пошло — Minimum Mode, без вины.'],phrase:'Система работает даже при низкой энергии.',mode:'soft'},{id:'perfectionism',icon:'🧱',title:'Перфекционизм',trigger:'Хочется сделать идеально, поэтому не начинаешь.',steps:['Назвать задачу черновиком.','Сделать плохую первую версию.','Отметить факт движения.','Вернуться к улучшению позже.'],phrase:'Черновик сильнее фантазии.',mode:'balanced'},{id:'lateSleep',icon:'🌙',title:'Поздний сон',trigger:'После 02:00 тянет продолжать, смотреть, доделывать.',steps:['Закрыть творчество.','БАДЫ НОЧЬ.','Молитва.','Дыхание 3 минуты.','Телефон убрать от кровати.'],phrase:'Сон — множитель завтрашнего Павла.',mode:'hard'},{id:'sweets',icon:'🍬',title:'Тяга к сладкому',trigger:'Хочется сладкого, особенно в выходные.',steps:['Проверить: это голод, усталость или скука?','Вписать сладкое в лимит, не сверху.','Выбрать 300–500 ккал внутри плана.','После — прогулка или бытовое движение.'],phrase:'Сладкое внутри плана — не срыв.',mode:'balanced'},{id:'chaos',icon:'🌪️',title:'Хаос в голове',trigger:'Много идей, ничего не понятно, не знаешь с чего начать.',steps:['Открыть MARKOV OS.','Выбрать одну текущую задачу.','Записать лишние мысли в Obsidian.','Запустить 5 минут.'],phrase:'Хаос лечится ближайшим действием.',mode:'balanced'},{id:'anxiety',icon:'🧘',title:'Тревога',trigger:'Внутреннее напряжение, неопределённость, раздражение.',steps:['3 минуты дыхания.','Записать одну тревожную мысль.','Спросить: что сейчас зависит от меня?','Сделать один физический шаг.'],phrase:'Контроль — это действие, не пережёвывание.',mode:'soft'}];
+const automations=[{id:'autoYoutube',icon:'📺',title:'YouTube только на кардио/прогулке/быту',why:'Телефон становится топливом выполнения, а не сливом.'},{id:'autoMealLang',icon:'🌍',title:'Еда открывает язык',why:'Spanish/Chinese вместо мусорных роликов.'},{id:'autoPMCoffee',icon:'☕',title:'PM открывается напитком и таймером',why:'Приятный вход снижает сопротивление.'},{id:'autoPostCardio',icon:'💡',title:'После кардио — мысль в Obsidian',why:'Фиксируются лучшие идеи без насилия.'},{id:'autoRewardGate',icon:'🎁',title:'Скролл только после минимума',why:'Приятное становится наградой, а не хозяином.'},{id:'autoNight',icon:'🌙',title:'БАДЫ НОЧЬ → молитва → дыхание',why:'Сонный ритуал закрывает день.'}];
+const defaults={settings:{theme:'black',startDate:localDate(),mode:'normal',tone:'balanced',obsidianVault:''},logs:{},ideas:[],rituals:{morning:'Я не жду идеального состояния. Я включаю систему.',night:'День сохранён. Завтра я продолжаю.'}};
+let state=load(),activeSection='today',focusInterval=null,focusLeft=0,activeTaskId=null;
+function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}function load(){try{return merge(defaults,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch{return structuredClone(defaults)}}function merge(a,b){const o=Array.isArray(a)?[...a]:{...a};for(const k in b)o[k]=b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k])?merge(a[k]||{},b[k]):b[k];return o}function save(){localStorage.setItem(KEY,JSON.stringify(state));document.documentElement.dataset.theme=state.settings.theme;document.querySelector('meta[name="theme-color"]').content=state.settings.theme==='white'?'#f5f1e8':'#050507'}function log(){const d=localDate();if(!state.logs[d])state.logs[d]={date:d,tasks:{},autos:{},protocols:{},fields:{},review:{},mode:state.settings.mode};return state.logs[d]}function timeNow(){return new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}function dateNow(){return new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}function taskState(id){return log().tasks[id]||{done:false,doneAt:'',plannedAt:''}}function isDone(id){return !!taskState(id).done}function markTask(id,silent=false){const t=tasks.find(x=>x.id===id),s=taskState(id);log().tasks[id]=s.done?{done:false,doneAt:'',plannedAt:t?.time||''}:{done:true,doneAt:timeNow(),plannedAt:t?.time||''};save();render();if(!silent)toast(log().tasks[id].done?'Выполнено в '+timeNow()+'.':'Снято.')}function markAuto(id){const a=automations.find(x=>x.id===id),s=log().autos[id];log().autos[id]=s?.done?{done:false,doneAt:''}:{done:true,doneAt:timeNow(),title:a?.title||''};save();render();toast(log().autos[id].done?'Автоматизация отмечена.':'Снято.')}function autoDone(id){return !!log().autos[id]?.done}function protocolDone(id){return !!log().protocols[id]?.done}function markProtocol(id){const p=protocols.find(x=>x.id===id),s=log().protocols[id];log().protocols[id]=s?.done?{done:false,doneAt:''}:{done:true,doneAt:timeNow(),title:p?.title||''};save();render();toast(log().protocols[id].done?'Протокол засчитан.':'Протокол снят.')}function setField(k,v){log().fields[k]=v;save()}function field(k){return log().fields[k]||''}function parseTime(label){const p=label.split('–')[0].split(':').map(Number);let h=p[0],m=p[1]||0,total=h*60+m;if(h<6)total+=1440;return total}function nowMinutes(){const d=new Date();let t=d.getHours()*60+d.getMinutes();if(d.getHours()<6)t+=1440;return t}function currentBlock(){let c=blocks[0],n=nowMinutes();for(const b of blocks)if(n>=parseTime(b[0]))c=b;return c}function nextBlock(){let n=nowMinutes();for(const b of blocks)if(parseTime(b[0])>n)return b;return blocks[0]}function currentTask(){const b=currentBlock(),c=b[2].map(id=>tasks.find(t=>t.id===id)).filter(Boolean);return c.find(t=>!isDone(t.id))||tasks.find(t=>!isDone(t.id))||tasks[0]}function xpOf(l){return tasks.reduce((s,t)=>s+(l.tasks?.[t.id]?.done?t.xp:0),0)}function xpToday(){return xpOf(log())}function xpTotal(){return Object.values(state.logs).reduce((s,l)=>s+xpOf(l),0)}function completed(){return tasks.filter(t=>isDone(t.id)).length}function percent(){return Math.round(completed()/tasks.length*100)}function daysLeft(){const s=new Date(state.settings.startDate||localDate()),t=new Date(s);t.setDate(t.getDate()+60);return Math.max(0,Math.ceil((t-new Date())/86400000))}function rank(){const ranks=[['Новобранец',0],['Воин',350],['Феодал',1000],['Архитектор',2100],['Суверен',3600],['Легенда',5400]],xp=xpTotal();let cur=ranks[0],next=ranks.at(-1);for(let i=0;i<ranks.length;i++){if(xp>=ranks[i][1])cur=ranks[i];if(xp<ranks[i][1]){next=ranks[i];break}}return{cur:cur[0],next:next[0],xp,p:Math.min(100,Math.round((xp-cur[1])/Math.max(1,next[1]-cur[1])*100))}}function modeLabel(){return{normal:'Норма',minimum:'Минимум',soft:'Мягкий',hard:'Жёсткий'}[log().mode||state.settings.mode]||'Норма'}function setMode(m){log().mode=m;state.settings.mode=m;save();closeRecovery();render();toast('Режим: '+modeLabel())}function setTone(t){state.settings.tone=t;save();render();toast('Тон: '+t)}function toneText(t){const tone=state.settings.tone;if(tone==='hard')return `Жёстко: ${t.title}. Хватит обсуждать. Минимум — сделать сейчас.`;if(tone==='soft')return `Мягко: сделай минимальную версию “${t.title}”. Даже 5 минут сохраняют день.`;return `Сбалансировано: “${t.title}” — следующий шаг, который двигает всю систему.`}function rewardUnlocked(){return['water','suppMorning','prayerMorning','breathMorning','pm','english','contentIdea'].every(isDone)}function calcAdherence(){const logs=Object.values(state.logs).slice(-7);if(!logs.length)return 0;const max=tasks.reduce((a,t)=>a+t.xp,0);return Math.round(logs.reduce((s,l)=>s+xpOf(l)/max*100,0)/logs.length)}
+function renderNav(){document.getElementById('nav').innerHTML=navItems.map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="n">${i[1]}</span><span><b>${i[2]}</b><br><small>${i[3]}</small></span></button>`).join('');document.getElementById('mobilebar').innerHTML=navItems.slice(0,5).map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="mi">${i[1]}</span>${i[2]}</button>`).join('');updateNav()}function go(id){activeSection=id;document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');const n=navItems.find(i=>i[0]===id);document.getElementById('pageTitle').textContent=n[2];document.getElementById('pageSubtitle').textContent=n[3];updateNav();scrollTo({top:0,behavior:'smooth'})}function updateNav(){document.querySelectorAll('[data-go]').forEach(b=>b.classList.toggle('active',b.dataset.go===activeSection))}function render(){save();renderToday();renderProtocols();renderFormats();renderTimeline();renderFuture();renderAutomation();renderPM();renderBody();renderContent();renderRituals();renderArchive();updateNav()}
+function stat(label,value,hint){return`<div class="stat"><div class="label">${label}</div><div class="value">${value}</div><div class="hint">${hint}</div></div>`}function input(k,l,p){return`<label><span>${l}</span><input value="${esc(field(k))}" placeholder="${p}" onchange="setField('${k}',this.value)"></label>`}function taskCheck(t){const s=taskState(t.id),cur=currentTask().id===t.id;return`<label class="check ${s.done?'done':''} ${cur?'current':''}"><input type="checkbox" ${s.done?'checked':''} onchange="markTask('${t.id}')"><span><b>${t.icon} ${t.title}</b><small>План: <b class="timeAccent">${t.time}</b> · ⏱ ${taskDuration(t)} мин · ${t.min}<br>${t.why}</small></span><span class="stamp ${s.done?'done':cur?'current':''}">${s.done?'✓ '+s.doneAt:cur?'СЕЙЧАС':'XP '+t.xp}<small class="miniTimer">⏱ ${taskDuration(t)}м</small></span></label>`}function stoicFormula(){const arr=['Сделай ближайшее правильное действие. Остальное — шум.','Не жди настроения. Настроение догонит действие.','Ты управляешь не миром, а своим следующим шагом.','Минимум дня — это не слабость, а страховка системы.','Повторение сильнее вдохновения.','Тревога не решает. Действие решает.'];return arr[new Date().getDate()%arr.length]}
+function renderToday(){const t=currentTask(),b=currentBlock(),n=nextBlock(),r=rank();document.getElementById('today').innerHTML=`<div class="hero"><div class="card gold"><span class="tag gold">${t.icon} Сейчас · ${b[0]} · ${b[1]}</span><div class="clockRow"><div class="clock" id="liveClock">${timeNow()}</div><div class="dateLine">${dateNow()}<br>Режим: ${modeLabel()} · Следующий блок: ${n[0]} / ${n[1]}</div></div><h1 class="taskTitle">${t.icon} ${t.title}</h1><p class="taskText">${t.min}</p><div class="actions" style="margin:0 0 12px"><span class="timerChip">⏱ ${taskDuration(t)} мин</span><span class="tag gold">План: ${t.time}</span><span class="tag ${isDone(t.id)?'green':'gold'}">${isDone(t.id)?'Выполнено '+taskState(t.id).doneAt:'Следующее действие'}</span></div><div class="why"><b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}<br><br><b>Тон:</b> ${toneText(t)}</div><div class="actions" style="margin-top:13px"><button class="btn primary" onclick="markTask('${t.id}')">✅ Выполнил</button><button class="btn" onclick="openCurrentTask()">Открыть</button><button class="btn green" onclick="startCurrentFocus()">⏱ 5 минут</button><button class="btn" onclick="startTaskFocus()">⏳ По задаче</button><button class="btn red" onclick="showRecovery()">🛡 Сливаюсь</button></div></div><div class="card"><div class="ring" style="--p:${percent()}"><span>${percent()}%</span></div><h2 class="serif" style="text-align:center;margin:0 0 4px">${r.cur}</h2><p class="muted small" style="text-align:center">XP сегодня: ${xpToday()} · всего: ${r.xp}<br>До финиша: ${daysLeft()} дней</p><div class="bar"><i style="width:${r.p}%"></i></div><p class="muted small" style="text-align:center">Следующий ранг: ${r.next}</p></div></div><div class="grid g4" style="margin-top:13px">${stat('Выполнено',`${completed()}/${tasks.length}`,'с отметкой времени')}${stat('Активный блок',b[1],b[0])}${stat('Reward',rewardUnlocked()?'Открыт':'Закрыт','приятное после минимума')}${stat('7 дней',calcAdherence()+'%','среднее выполнение')}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Форматы задач</h3><div class="segment"><button class="seg active" onclick="filterTasks('all',this)">Все</button><button class="seg" onclick="filterTasks('Запуск',this)">Запуск</button><button class="seg" onclick="filterTasks('Будущее',this)">Будущее</button><button class="seg" onclick="filterTasks('Тело',this)">Тело</button><button class="seg" onclick="filterTasks('Закрытие',this)">Закрытие</button></div><div id="taskList" class="checklist">${taskList('all')}</div></div><div class="grid"><div class="card green"><h3>Стоическая формула дня</h3><p class="taskText">${stoicFormula()}</p><div class="why">Контроль: действия. Не контроль: настроение, чужая оценка, идеальное состояние. Делай то, что зависит от тебя.</div></div><div class="card"><h3>Быстрый ввод</h3><div class="grid g2">${input('weight','Вес','100.0')}${input('wellbeing','Самочувствие','7')}${input('energyMorning','Энергия утром','7')}${input('energyNight','Энергия ночью','5')}</div><label style="margin-top:12px"><span>Мысль дня</span><textarea onchange="setField('note',this.value)" placeholder="Одна мысль — уже контент.">${esc(field('note'))}</textarea></label></div></div></div>`}function taskList(group){return tasks.filter(t=>group==='all'||t.group===group).map(taskCheck).join('')}function filterTasks(group,btn){document.querySelectorAll('.seg').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('taskList').innerHTML=taskList(group)}
+function renderProtocols(){document.getElementById('protocols').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Протоколы слива</h2><p class="muted">Здесь не мотивация, а конкретные действия под твои сценарии: телефон, усталость, перфекционизм, сладкое, тревога, хаос.</p></div><div class="grid g2" style="margin-top:13px">${protocols.map(p=>`<div class="card ${p.mode==='hard'?'red':p.mode==='soft'?'green':'gold'}"><span class="tag ${protocolDone(p.id)?'green':'gold'}">${p.icon} ${protocolDone(p.id)?'выполнен '+log().protocols[p.id].doneAt:'протокол'}</span><h2 class="serif" style="font-size:24px;margin:10px 0 8px">${p.title}</h2><p class="muted small"><b>Триггер:</b> ${p.trigger}</p><ol class="small" style="line-height:1.65;color:var(--muted);padding-left:20px">${p.steps.map(s=>`<li>${s}</li>`).join('')}</ol><div class="why"><b>Фраза:</b> ${p.phrase}</div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="markProtocol('${p.id}')">✅ Отметить</button><button class="btn" onclick="applyProtocol('${p.id}')">Применить</button></div></div>`).join('')}</div>`}function applyProtocol(id){const p=protocols.find(x=>x.id===id);if(!p)return;setMode(p.mode==='hard'?'hard':p.mode==='soft'?'soft':'normal');toast('Протокол применён: '+p.title)}
+function renderFormats(){document.getElementById('formats').innerHTML=`<div class="grid g3">${formatCard('🛡 Минимум','Плохой сон / усталость','Вода, БАДЫ, молитва, дыхание, PM 10, English 5, кардио/прогулка, review.','minimum')}${formatCard('⚔️ Норма','Обычный рабочий день','PM 60, English 20, работа, силовая/кардио, 1 мысль, вечерний разбор.','normal')}${formatCard('👑 Максимум','День сильного рывка','PM 90, English 30, артефакт, контент-черновик, тренировка, кардио, творчество.','hard')}</div><div class="card gold" style="margin-top:13px"><h3>Тон системы</h3><div class="actions"><button class="btn ${state.settings.tone==='soft'?'primary':''}" onclick="setTone('soft')">Мягкий</button><button class="btn ${state.settings.tone==='balanced'?'primary':''}" onclick="setTone('balanced')">Сбалансированный</button><button class="btn red ${state.settings.tone==='hard'?'primary':''}" onclick="setTone('hard')">Жёсткий</button></div><p class="muted small">Тон меняет подсказки: мягкий — когда устал; жёсткий — когда прокрастинируешь; сбалансированный — по умолчанию.</p></div>`}function formatCard(title,when,what,mode){return`<div class="card ${mode==='hard'?'red':mode==='minimum'?'green':'gold'}"><h2 class="serif" style="margin:0 0 8px">${title}</h2><p class="muted small"><b>Когда:</b> ${when}</p><p class="taskText" style="font-size:16px">${what}</p><button class="btn primary" onclick="setMode('${mode}')">Включить</button></div>`}
+function renderTimeline(){const cur=currentBlock();document.getElementById('timeline').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Таймлайн по времени</h2><p class="muted">Текущий блок подсвечен. У выполненных действий время выделяется зелёным.</p></div><div class="timeline" style="margin-top:13px">${blocks.map(b=>timeBlock(b,cur)).join('')}</div>`}function timeBlock(b,cur){const doneAll=b[2].every(isDone),isCur=b[0]===cur[0];return`<div class="timeblock ${isCur?'current':''} ${doneAll?'done':''}"><div class="time">${b[0]}</div><div><b>${b[1]}</b><br><span class="muted small">${b[2].map(id=>tasks.find(t=>t.id===id).icon+' '+tasks.find(t=>t.id===id).title).join(' · ')}</span><div style="margin-top:8px">${b[2].map(id=>{const t=tasks.find(x=>x.id===id),s=taskState(id);return`<span class="tag ${s.done?'green':isCur?'gold':''}">${t.icon} ${t.title}: ${s.done?s.doneAt:'ожидает'}</span>`}).join(' ')}</div></div><div class="actions">${b[2].map(id=>`<button class="btn ghost" onclick="markTask('${id}')">${isDone(id)?'Снять':'Выполнить'}</button>`).join('')}</div></div>`}
 
-    <main class="main">
-      <header class="topbar">
-        <div class="topline">
-          <div class="title">
-            <h2 id="pageTitle">Сегодня</h2>
-            <p id="pageSubtitle">Сверх удобный dashboard: сейчас → задача → зачем → действие → время выполнения.</p>
-          </div>
-          <div class="actions">
-            <button class="btn primary" onclick="openCurrentTask()">Текущая задача</button>
-            <button class="btn red" onclick="showRecovery()">Я сливаюсь</button>
-            <button class="btn" onclick="openWhy()">Зачем</button>
-            <button class="btn ghost" onclick="toggleTheme()">Тема</button>
-          </div>
-        </div>
-      </header>
+function renderFuture(){
+  document.getElementById('future').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Прогноз результата</h2><p class="muted">Калькулятор показывает, что произойдёт, если выполнять систему регулярно. Это не фантазия, а математика повторения.</p></div><div class="card" style="margin-top:13px"><h3>Параметры рывка</h3><div class="grid g4"><label><span>Дней</span><input id="prDays" type="number" min="7" max="180" value="60" oninput="projectionCalc()"></label><label><span>Выполнение %</span><input id="prAdh" type="number" min="10" max="100" value="80" oninput="projectionCalc()"></label><label><span>PM минут/день</span><input id="prPM" type="number" min="0" max="180" value="75" oninput="projectionCalc()"></label><label><span>English минут/день</span><input id="prEN" type="number" min="0" max="90" value="20" oninput="projectionCalc()"></label><label><span>Кардио минут/день</span><input id="prCardio" type="number" min="0" max="60" value="25" oninput="projectionCalc()"></label><label><span>Мыслей/день</span><input id="prIdeas" type="number" min="0" max="5" value="1" oninput="projectionCalc()"></label><label><span>Дефицит ккал/день</span><input id="prDef" type="number" min="0" max="1500" value="500" oninput="projectionCalc()"></label><label><span>Силовых/нед</span><input id="prStr" type="number" min="0" max="7" value="4" oninput="projectionCalc()"></label></div></div><div class="forecastGrid" style="margin-top:13px" id="projectionOut"></div><div class="grid g2" style="margin-top:13px"><div class="card green"><h3>Что это значит</h3><div class="impact" id="projectionMeaning"></div></div><div class="card red"><h3>Жёсткая правда</h3><p class="taskText" id="projectionHard"></p><div class="why">Формула: маленькое действие каждый день создаёт результат, который невозможно получить редкими героическими рывками.</div></div></div>`;
+  setTimeout(projectionCalc,0);
+}
+function levelPM(h){return h>=70?'Portfolio-ready PM база':h>=45?'Middle-style фундамент':h>=25?'рабочая база PM':h>=10?'стартовая дисциплина':'мало для рывка'}
+function levelEN(h){return h>=25?'увереннее на созвонах':h>=15?'заметный speaking-базис':h>=7?'первичная разговорная прокачка':'нужно больше голоса'}
+function projectionCalc(){
+  const g=id=>Number(document.getElementById(id)?.value||0),days=g('prDays'),adh=g('prAdh')/100,pm=g('prPM'),en=g('prEN'),cardio=g('prCardio'),ideas=g('prIdeas'),def=g('prDef'),str=g('prStr');
+  const realDays=days*adh,pmH=realDays*pm/60,enH=realDays*en/60,cardioH=realDays*cardio/60,ideaCount=Math.round(realDays*ideas),fatKg=def*realDays/7700,strSessions=Math.round(days/7*str*adh),xpForecast=Math.round(realDays*(5+5+10+10+15+10+30+30+20+15+20));
+  const out=document.getElementById('projectionOut'); if(!out)return;
+  out.innerHTML=`${stat('PM часов',pmH.toFixed(1),levelPM(pmH))}${stat('English часов',enH.toFixed(1),levelEN(enH))}${stat('Кардио часов',cardioH.toFixed(1),'расход и стабильность')}${stat('Идей контента',ideaCount,'сырьё для блога')}${stat('Силовых',strSessions,'сессий за период')}${stat('Потенциал жира','≈ '+fatKg.toFixed(1)+' кг','при дефиците')}${stat('XP прогноз',xpForecast,'если держать систему')}${stat('Ранг',xpForecast>5400?'Легенда':xpForecast>3600?'Суверен':xpForecast>2100?'Архитектор':xpForecast>1000?'Феодал':'Воин','ориентир')}`;
+  document.getElementById('projectionMeaning').innerHTML=`<div class="impactItem"><b>PM:</b> ${pmH.toFixed(1)} часов — ${levelPM(pmH)}. Это уже материал для кейсов, резюме и собеседований.</div><div class="impactItem"><b>English:</b> ${enH.toFixed(1)} часов speaking — ${levelEN(enH)}. Главное: говорить вслух, а не читать молча.</div><div class="impactItem"><b>Контент:</b> ${ideaCount} мыслей — это база для Telegram, Shorts, Reels, VK и сценариев.</div><div class="impactItem"><b>Тело:</b> ${cardioH.toFixed(1)} часов кардио и ${strSessions} силовых — это стабильность формы, а не случайный рывок.</div>`;
+  document.getElementById('projectionHard').textContent=adh<0.6?'При таком выполнении система не раскроется. Нужен не максимум, а минимум каждый день.':'Если ты держишь хотя бы '+Math.round(adh*100)+'% выполнения, через '+days+' дней это уже другая траектория: больше PM-доказательств, сильнее речь, суше тело, больше контента.';
+}
 
-      <section class="section active" id="today"></section>
-      <section class="section" id="timeline"></section>
-      <section class="section" id="autopilot"></section>
-      <section class="section" id="pm"></section>
-      <section class="section" id="body"></section>
-      <section class="section" id="content"></section>
-      <section class="section" id="rituals"></section>
-      <section class="section" id="export"></section>
-    </main>
-  </div>
+function renderAutomation(){document.getElementById('automation').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Автоматизация поведения</h2><p class="muted">Отмечай не только задачи, но и работающие связки. Это показывает, что система стала автоматической.</p></div><div class="grid g3" style="margin-top:13px">${automations.map(a=>`<label class="check ${autoDone(a.id)?'done':''}"><input type="checkbox" ${autoDone(a.id)?'checked':''} onchange="markAuto('${a.id}')"><span><b>${a.icon} ${a.title}</b><small>${a.why}</small></span><span class="stamp ${autoDone(a.id)?'done':''}">${autoDone(a.id)?'✓ '+log().autos[a.id].doneAt:'auto'}</span></label>`).join('')}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>If → then</h3><label><span>Препятствие</span><select id="obstacle"><option>тянет в телефон</option><option>нет сил</option><option>не знаю с чего начать</option><option>перфекционизм</option><option>устал после клиентов</option><option>поздний сон</option></select></label><button class="btn primary" style="margin-top:12px" onclick="makeIfThen()">Собрать план</button><textarea id="ifThenOutput" class="copybox" style="margin-top:12px"></textarea></div><div class="card blue"><h3>Калькулятор дисциплины</h3>${stat('Сегодня',percent()+'%','выполнено')}${stat('7 дней',calcAdherence()+'%','среднее')}${stat('Автоматизации',Object.values(log().autos).filter(x=>x.done).length+'/'+automations.length,'сегодня')}</div></div>`}function makeIfThen(){const o=document.getElementById('obstacle').value;document.getElementById('ifThenOutput').value=`Если ${o}, то я делаю минимальный вход:\n\n1. 10 циклов дыхания.\n2. Открыть текущую задачу на 5 минут.\n3. Отметить выполнение в MARKOV OS.\n4. Приятное — только после минимума или во время движения.\n\nФормула: не спорить с собой, а вернуть управление.`}
+function renderPM(){document.getElementById('pm').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">PM Path</h2><p class="muted">Middle+/Senior-style: кейсы, артефакты, речь, портфолио.</p><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="copyText(pmPrompt())">Скопировать PM-промт</button><button class="btn" onclick="markTask('pm')">PM выполнен</button></div></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задача дня</h3><p class="taskText">${pmDaily()}</p><div class="why">Каждый PM-блок должен создавать артефакт: Risk Register, backlog, status report, stakeholder map, roadmap.</div><label style="margin-top:12px"><span>Артефакт сегодня</span><textarea onchange="setField('pmArtifact',this.value)">${esc(field('pmArtifact'))}</textarea></label></div><div class="card"><h3>PM English</h3>${['Let me clarify the scope before we commit.','What is the current blocker?','Could you estimate this task?',"Let's align on priorities.",'I will send a short status update.'].map((p,i)=>`<div class="stat" style="margin-bottom:8px"><div class="label">Phrase ${i+1}</div><b>${p}</b></div>`).join('')}</div></div>`}function pmDaily(){return['Weekly review: что создано и что показать.','Risk Register для MARKOV OS: 5 рисков.','Backlog из 10 задач для MARKOV OS.','Status report: done/next/risks/blockers.','Stakeholder Map для Касты.','Daily standup на английском.','Конфликт: клиент меняет scope.'][new Date().getDay()]}function pmPrompt(){return`Ты — PM-ментор Павла Маркова. Задача дня: ${pmDaily()}\nДай: 1) 20/80; 2) шаблон артефакта; 3) пример MARKOV OS; 4) 5 English phrases; 5) задание на 20 минут.`}
+function renderBody(){const w=parseFloat(field('weight')||100),h=188,a=29,bf=15,lbm=w*(1-bf/100),mif=Math.round(10*w+6.25*h-5*a+5),kat=Math.round(370+21.6*lbm),tdee=Math.round(((mif+kat)/2)*1.62),def=tdee-2800;document.getElementById('body').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Тело: сушка</h2><p class="muted">Цель: 96–98 кг без потери силы и наполненности. Не качели калорий — ровная неделя.</p></div><div class="grid g4" style="margin-top:13px">${stat('BMR Mifflin',mif+' ккал','расчёт')}${stat('BMR Katch',kat+' ккал','LBM ~'+Math.round(lbm)+' кг')}${stat('TDEE',tdee+' ккал','оценка')}${stat('Дефицит',def+' ккал','при 2800')}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Трекер</h3><div class="grid g2">${input('weight','Вес','100.0')}${input('waistNarrow','Талия узкое','см')}${input('waistNavel','Талия пупок','см')}${input('waistLow','2 см ниже','см')}${input('wellbeing','Самочувствие','7')}${input('energyNight','Энергия вечер','5')}</div><div class="actions" style="margin-top:12px"><button class="btn" onclick="markTask('strength')">Силовая</button><button class="btn" onclick="markTask('cardio')">Кардио</button></div></div><div class="card"><h3>Целевые веса</h3><table><tr><th>Жир</th><th>Вес</th></tr>${[14,12,10,9,8].map(x=>`<tr><td>${x}%</td><td>${(lbm/(1-x/100)).toFixed(1)} кг</td></tr>`).join('')}</table></div></div>`}
+function renderContent(){document.getElementById('content').innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">Контент</h2><p class="muted">Одна мысль → Telegram → Reels/Shorts → Stories → VK.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Новая мысль</h3><textarea id="ideaInput" placeholder="Запиши мысль. Не идеально."></textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="addIdea()">Сохранить</button><button class="btn" onclick="markTask('contentIdea')">Мысль выполнена</button></div></div><div class="card"><h3>Генератор</h3><select id="contentType"><option value="telegram">Telegram</option><option value="reels">Reels / Shorts</option><option value="stories">Stories</option><option value="vk">VK</option></select><button class="btn" style="margin-top:12px" onclick="generateContent()">Сделать черновик</button><textarea id="contentOutput" class="copybox" style="margin-top:12px"></textarea><button class="btn ghost" onclick="copyText(document.getElementById('contentOutput').value)">Скопировать</button></div></div><div class="card" style="margin-top:13px"><h3>Архив идей</h3><div class="timeline">${state.ideas.slice().reverse().map(i=>`<div class="timeblock"><span class="tag gold">${i.status}</span><div><b>${esc(i.text)}</b><br><span class="muted small">${i.date}</span></div><select onchange="updateIdeaStatus('${i.id}',this.value)">${['idea','scripted','recorded','edited','posted','repurposed'].map(s=>`<option ${i.status===s?'selected':''}>${s}</option>`).join('')}</select></div>`).join('')||"<p class='muted'>Пока идей нет.</p>"}</div></div>`}function addIdea(){const inp=document.getElementById('ideaInput'),text=inp.value.trim();if(!text)return toast('Напиши мысль.');state.ideas.push({id:Date.now()+'',date:localDate(),text,status:'idea'});setField('note',text);if(!isDone('contentIdea'))log().tasks.contentIdea={done:true,doneAt:timeNow(),plannedAt:'13:45'};inp.value='';save();render();toast('Идея сохранена.')}function generateContent(){const text=document.getElementById('ideaInput').value.trim()||(state.ideas.at(-1)?.text||'');if(!text)return toast('Нет мысли.');const type=document.getElementById('contentType').value,templates={telegram:`${text}\n\nВывод: система сильнее настроения.\n\n— Павел Марков`,reels:`Крючок: "Ты сливаешься не потому, что слабый. У тебя нет ближайшего шага."\n\n1. ${text}\n2. Личный пример.\n3. Правило: 5 минут полезного → потом приятное.\n4. Финал: "Не жди мотивацию. Собери систему."`,stories:`1. ${text}\n2. Опрос: "Сливаешься из-за телефона?"\n3. Финал: "Минимум сохраняет день."`,vk:`${text}\n\nПрактика: открой одну задачу на 5 минут. Не идеально. Просто начни.`};document.getElementById('contentOutput').value=templates[type]}function updateIdeaStatus(id,status){const idea=state.ideas.find(i=>i.id===id);if(idea){idea.status=status;save();toast('Статус обновлён.')}}
+function renderRituals(){document.getElementById('rituals').innerHTML=`<div class="grid g2"><div class="card gold"><h2 class="serif">Утро</h2><div class="checklist">${['water','suppMorning','prayerMorning','breathMorning','plan'].map(id=>taskCheck(tasks.find(t=>t.id===id))).join('')}</div><label style="margin-top:12px"><span>Фраза запуска</span><textarea onchange="state.rituals.morning=this.value;save()">${esc(state.rituals.morning)}</textarea></label></div><div class="card gold"><h2 class="serif">Ночь</h2><div class="checklist">${['review','suppNight','prayerNight','breathNight','sleep'].map(id=>taskCheck(tasks.find(t=>t.id===id))).join('')}</div><label style="margin-top:12px"><span>Фраза закрытия</span><textarea onchange="state.rituals.night=this.value;save()">${esc(state.rituals.night)}</textarea></label></div></div><div class="card" style="margin-top:13px"><h3>Review</h3><div class="grid g3"><label><span>Что сделал</span><textarea onchange="log().review.done=this.value;save()">${esc(log().review.done||'')}</textarea></label><label><span>Где слил</span><textarea onchange="log().review.leak=this.value;save()">${esc(log().review.leak||'')}</textarea></label><label><span>Завтра главное</span><textarea onchange="log().review.tomorrow=this.value;save()">${esc(log().review.tomorrow||'')}</textarea></label></div></div>`}
+function renderArchive(){const logs=Object.values(state.logs).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);document.getElementById('archive').innerHTML=`<div class="grid g4">${stat('XP всего',xpTotal(),'накоплено')}${stat('XP сегодня',xpToday(),'сегодня')}${stat('Дней в архиве',Object.keys(state.logs).length,'сохранено')}${stat('Протоколы',Object.values(log().protocols).filter(x=>x.done).length+'/'+protocols.length,'сегодня')}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Obsidian</h3><label><span>Vault name</span><input value="${esc(state.settings.obsidianVault)}" placeholder="MARKOV" onchange="state.settings.obsidianVault=this.value;save()"></label><textarea class="copybox" id="obsidianBox" readonly style="margin-top:12px">${esc(obsidianText())}</textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button><button class="btn" onclick="copyText(obsidianText())">Скопировать</button></div></div><div class="card"><h3>TickTick</h3><textarea class="copybox" readonly>${esc(ticktickText())}</textarea><button class="btn primary" style="margin-top:12px" onclick="copyText(ticktickText())">Скопировать задачи</button></div></div><div class="card" style="margin-top:13px"><h3>Архив дней</h3><div class="timeline">${logs.map(l=>`<div class="timeblock"><span class="time">${l.date}</span><div><b>${xpOf(l)} XP</b><br><span class="muted small">Выполнено: ${tasks.filter(t=>l.tasks?.[t.id]?.done).length}/${tasks.length} · Протоколы: ${Object.values(l.protocols||{}).filter(x=>x.done).length}</span></div><span class="tag gold">${Math.round(tasks.filter(t=>l.tasks?.[t.id]?.done).length/tasks.length*100)}%</span></div>`).join('')||"<p class='muted'>Архив появится после отметок.</p>"}</div><div class="actions" style="margin-top:12px"><button class="btn" onclick="exportData()">Экспорт JSON</button><button class="btn" onclick="document.getElementById('importFile').click()">Импорт JSON</button><button class="btn red" onclick="resetToday()">Сбросить сегодня</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div></div>`}function ticktickText(){return`MARKOV OS — TickTick\n\n11:00 Вода\n11:02 БАДЫ УТРО\n11:05 Молитва утром\n11:08 Дыхание утром\n11:50 План дня\n12:10 PM Deep Work\n13:25 English PM Speaking\n13:45 1 мысль в Obsidian\nЕда — Spanish / Chinese\n16:00–22:00 Работа / клиенты\n16:00–22:00 Силовая\n22:30 Кардио + YouTube\n23:00 Мысль после кардио\n00:15 Творчество\n01:45 Вечерний разбор\n02:10 БАДЫ НОЧЬ\n02:12 Молитва на ночь\n02:15 Дыхание на ночь\n03:00 Сон`}function obsidianText(){const done=tasks.filter(t=>isDone(t.id)).map(t=>`- ${t.icon} ${t.title} — ${taskState(t.id).doneAt}`).join('\n'),autos=automations.filter(a=>autoDone(a.id)).map(a=>`- ${a.icon} ${a.title} — ${log().autos[a.id].doneAt}`).join('\n'),prots=protocols.filter(p=>protocolDone(p.id)).map(p=>`- ${p.icon} ${p.title} — ${log().protocols[p.id].doneAt}`).join('\n');return`# MARKOV OS — ${localDate()}\n\n## Состояние\n- Вес: ${field('weight')}\n- Самочувствие: ${field('wellbeing')}\n- Энергия утром: ${field('energyMorning')}\n- Энергия ночью: ${field('energyNight')}\n\n## Выполнено\n${done||'- Пока ничего не отмечено'}\n\n## Автоматизации\n${autos||'- Пока ничего не отмечено'}\n\n## Протоколы\n${prots||'- Пока ничего не отмечено'}\n\n## PM\n- Артефакт: ${field('pmArtifact')}\n\n## Контент\n- Мысль дня: ${field('note')}\n\n## Review\n- Что сделал: ${log().review.done||''}\n- Где слил: ${log().review.leak||''}\n- Завтра главное: ${log().review.tomorrow||''}\n\nФраза: День сохранён. Завтра я продолжаю.`}function openObsidian(){const content=obsidianText();copyText(content);const vault=state.settings.obsidianVault?`vault=${encodeURIComponent(state.settings.obsidianVault)}&`:'';window.location.href=`obsidian://new?${vault}file=${encodeURIComponent('MARKOV OS/'+localDate())}&content=${encodeURIComponent(content)}`;toast('Текст скопирован. Если Obsidian установлен — откроется заметка.')}
+function openCurrentTask(){openTask(currentTask().id)}function openTask(id){const t=tasks.find(x=>x.id===id);activeTaskId=t.id;document.getElementById('taskModalTitle').textContent=t.icon+' '+t.title;document.getElementById('taskModalSub').textContent=`План: ${t.time} · ⏱ ${taskDuration(t)} мин · XP ${t.xp}`;document.getElementById('taskModalAction').textContent=t.min;document.getElementById('taskModalWhy').innerHTML=`<b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Приятная привязка:</b> ${t.bundle}`;document.getElementById('taskDoneBtn').onclick=()=>{markTask(t.id);closeTaskModal()};document.getElementById('taskModal').classList.add('active')}function closeTaskModal(){document.getElementById('taskModal').classList.remove('active')}function startCurrentFocus(){openCurrentTask();setTimeout(()=>startFocus(5),120)}function startTaskFocus(){const t=tasks.find(x=>x.id===activeTaskId)||currentTask();startFocus(taskDuration(t))}function startFocus(min){clearInterval(focusInterval);focusLeft=min*60;document.getElementById('focusBox').classList.add('active');updateFocus();focusInterval=setInterval(()=>{focusLeft--;updateFocus();if(focusLeft<=0){clearInterval(focusInterval);toast('Фокус завершён. Отметь выполнение.')}},1000)}function updateFocus(){const m=String(Math.floor(focusLeft/60)).padStart(2,'0'),s=String(focusLeft%60).padStart(2,'0'),node=document.getElementById('focusTimer');if(node)node.textContent=`${m}:${s}`}function showRecovery(){document.getElementById('recoveryModal').classList.add('active');document.getElementById('recoveryGrid').innerHTML=protocols.map(p=>`<button class="btn" onclick="setRecovery('${attr(p.id)}')">${p.icon} ${p.title}</button>`).join('')}function closeRecovery(){document.getElementById('recoveryModal').classList.remove('active')}function setRecovery(id){const p=protocols.find(x=>x.id===id);document.getElementById('recoveryAction').innerHTML=p.steps.map((s,i)=>`${i+1}. ${s}`).join('<br>');document.getElementById('recoveryWhy').innerHTML=`<b>Триггер:</b> ${p.trigger}<br><br><b>Фраза:</b> ${p.phrase}`;document.querySelector('#recoveryModal .btn.primary').onclick=()=>{markProtocol(p.id);closeRecovery()}}function completeRecovery(){const t=currentTask();if(!isDone(t.id))markTask(t.id,true);closeRecovery();render();toast('Ты вернулся в систему.')}function openWhy(){document.getElementById('whyModal').classList.add('active');document.getElementById('whyGrid').innerHTML=tasks.map(t=>`<div class="card"><span class="tag gold">${t.icon} ${t.time}</span><h4>${t.title}</h4><p class="small"><b>Зачем:</b> ${t.why}</p><p class="muted small"><b>К чему приведёт:</b> ${t.result}</p><p class="muted small"><b>Привязка:</b> ${t.bundle}</p></div>`).join('')}function closeWhy(){document.getElementById('whyModal').classList.remove('active')}function toggleTheme(){state.settings.theme=state.settings.theme==='white'?'black':'white';save();render();toast(state.settings.theme==='white'?'Белая тема включена.':'Чёрная тема включена.')}function copyText(text){if(!text)return toast('Нечего копировать.');if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('Скопировано.'))}else{const a=document.createElement('textarea');a.value=text;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast('Скопировано.')}}function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='markov-os-5-data.json';a.click();URL.revokeObjectURL(a.href)}function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=merge(defaults,JSON.parse(r.result));save();render();toast('Импортировано.')}catch{toast('Ошибка JSON.')}};r.readAsText(f)}function resetToday(){if(confirm('Сбросить сегодняшний день?')){delete state.logs[localDate()];save();render();toast('Сегодня сброшено.')}}function toast(msg){const n=document.getElementById('toast');n.textContent=msg;n.classList.add('active');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.classList.remove('active'),3300)}function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function attr(x){return String(x??'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+renderNav();render();setInterval(()=>{const c=document.getElementById('liveClock');if(c)c.textContent=timeNow();if(activeSection==='today'||activeSection==='timeline')render()},30000);
+</script>
 
-  <div class="mobilebar" id="mobilebar"></div>
+<style id="markov-v7-polish">
+/* MARKOV OS 7.0 — readability and personalization polish */
+:root{
+  --planBg: color-mix(in srgb, var(--card2) 92%, var(--gold) 3%);
+  --planText: var(--text);
+  --planBorder: var(--gbd);
+}
+html[data-theme=white]{
+  --planBg:#fffaf0;
+  --planText:#1d1a16;
+  --planBorder:rgba(152,112,29,.38);
+}
+textarea.copybox,
+#ifThenOutput,
+#customPlanOut,
+#planResult,
+#obsidianBox,
+#contentOutput{
+  background:var(--planBg)!important;
+  color:var(--planText)!important;
+  border:1px solid var(--planBorder)!important;
+  font-size:13px!important;
+  line-height:1.58!important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--gold) 7%, transparent);
+}
+#customPlanOut::selection,
+#ifThenOutput::selection,
+.copybox::selection{background:color-mix(in srgb,var(--gold) 35%, transparent)}
+.planHero{
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+  gap:13px;
+  margin-top:13px;
+}
+.timePill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 10px;
+  border-radius:999px;
+  border:1px solid var(--gbd);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 14%, transparent),transparent);
+  color:var(--gold);
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:800;
+}
+.planStep{
+  border:1px solid var(--bd);
+  background:var(--soft);
+  border-radius:16px;
+  padding:12px;
+  display:grid;
+  gap:7px;
+}
+.planStep strong{color:var(--text)}
+.planStep .timePill{width:max-content}
+.toolGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:13px;
+}
+.magicCard{
+  position:relative;
+  overflow:hidden;
+}
+.magicCard:before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:radial-gradient(circle at 0% 0%, color-mix(in srgb,var(--gold) 18%, transparent), transparent 18rem);
+  opacity:.8;
+}
+.magicCard > *{position:relative}
+.mobileActionDock{
+  display:none;
+}
+.priorityBadge{
+  display:inline-flex;
+  gap:6px;
+  align-items:center;
+  padding:5px 8px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--gold) 10%, transparent);
+  border:1px solid var(--gbd);
+  color:var(--gold);
+  font-size:12px;
+  font-weight:800;
+}
+.readableList{
+  margin:0;
+  padding-left:19px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.readableList li{margin:3px 0}
+@media(max-width:1150px){
+  .planHero,.toolGrid{grid-template-columns:1fr}
+  .card{border-radius:18px!important}
+  .taskText{font-size:16px!important}
+  .why{font-size:13px!important}
+  .check{
+    grid-template-columns:auto minmax(0,1fr);
+  }
+  .check .stamp{
+    grid-column:2;
+    text-align:left;
+    width:max-content;
+    min-width:0;
+  }
+  .timeblock{
+    gap:10px!important;
+  }
+  .timePill{
+    font-size:11px;
+  }
+  .mobileActionDock{
+    display:grid;
+    position:sticky;
+    bottom:76px;
+    z-index:50;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:12px;
+  }
+}
+</style>
 
-  <div class="modal" id="taskModal" onclick="if(event.target.id==='taskModal')closeTaskModal()">
-    <div class="modalCard">
-      <div class="grid g2">
-        <div>
-          <h2 class="serif" id="taskModalTitle" style="font-size:34px;margin:0 0 8px;">Текущая задача</h2>
-          <p class="muted" id="taskModalSub">Минимальная версия засчитывается.</p>
-        </div>
-        <div class="actions" style="justify-content:flex-end;">
-          <button class="btn ghost" onclick="closeTaskModal()">Закрыть</button>
-        </div>
-      </div>
-      <div class="card gold" style="margin-top:14px;">
-        <h3>Сделать сейчас</h3>
-        <p class="taskText" id="taskModalAction"></p>
-        <div class="why" id="taskModalWhy"></div>
-        <div class="focusBox" id="focusBox">
-          <div class="tag gold">Фокус запущен</div>
-          <div class="focusTime" id="focusTimer">05:00</div>
-          <p class="muted small">Не идеально. Просто держи задачу открытой до конца таймера.</p>
-        </div>
-        <div class="actions" style="margin-top:14px;">
-          <button class="btn primary" id="taskDoneBtn">Выполнил сейчас</button>
-          <button class="btn" onclick="startFocus(5)">5 минут</button>
-          <button class="btn" onclick="startFocus(25)">25 минут</button>
-          <button class="btn red" onclick="showRecovery()">Я сливаюсь</button>
-        </div>
-      </div>
+<script id="markov-v7-personalized-upgrade">
+/* MARKOV OS 7.0 — personalized planner, readable plan builder, richer motivation */
+
+function v7Duration(task){
+  const map={
+    water:2,suppMorning:2,prayerMorning:2,breathMorning:4,plan:10,pm:75,english:20,
+    contentIdea:10,languageMeal:12,work:360,strength:60,cardio:25,postCardioNote:5,
+    creative:60,review:10,suppNight:2,prayerNight:2,breathNight:4,sleep:15
+  };
+  return map[task.id] || (typeof taskDuration === "function" ? taskDuration(task) : 10);
+}
+
+function v7PlanByState(stateName, priority, minutes, tone){
+  const current = currentTask();
+  const isLow = stateName === "low" || stateName === "tired";
+  const isChaos = stateName === "chaos";
+  const isHard = tone === "hard";
+  const pool = {
+    pm: ["pm","english","contentIdea","review"],
+    body: ["strength","cardio","water","review"],
+    content: ["contentIdea","postCardioNote","creative","review"],
+    recovery: ["water","breathMorning","pm","english","review"],
+    money: ["work","pm","english","review"],
+    full: ["water","suppMorning","prayerMorning","breathMorning","pm","english","contentIdea","work","strength","cardio","review","suppNight","prayerNight","breathNight"]
+  }[priority] || ["pm","english","contentIdea","cardio","review"];
+
+  let budget = Math.max(5, Number(minutes)||30);
+  let selected = [];
+
+  if (isLow) {
+    selected = ["water","breathMorning", current.id, "review"];
+    budget = Math.min(budget, 35);
+  } else if (isChaos) {
+    selected = ["breathMorning","plan",current.id,"contentIdea"];
+  } else {
+    selected = [current.id, ...pool].filter((x,i,a)=>a.indexOf(x)===i);
+  }
+
+  let used = 0;
+  const steps = [];
+  for (const id of selected) {
+    const t = tasks.find(x=>x.id===id);
+    if(!t || isDone(id)) continue;
+    let d = Math.min(v7Duration(t), budget - used);
+    if (d <= 0) break;
+    if (d < 5 && budget >= 5) d = 5;
+    used += d;
+    steps.push({task:t,d});
+    if (used >= budget) break;
+  }
+
+  if (!steps.length) {
+    steps.push({task: current, d: Math.min(v7Duration(current), budget)});
+    used = steps[0].d;
+  }
+
+  const headline = isHard
+    ? "ЖЁСТКИЙ РЕЖИМ: без обсуждений. Выполнить ближайшее."
+    : tone === "soft"
+      ? "МЯГКИЙ РЕЖИМ: минимум без вины. Главное — вернуться."
+      : "СБАЛАНСИРОВАННЫЙ РЕЖИМ: спокойно, чётко, по системе.";
+
+  const result = [
+    `MARKOV OS — персональный план на сейчас`,
+    ``,
+    `Состояние: ${stateLabel(stateName)}`,
+    `Приоритет: ${priorityLabel(priority)}`,
+    `Доступное время: ${budget} минут`,
+    `Тон: ${toneLabel(tone)}`,
+    ``,
+    headline,
+    ``,
+    `План выполнения:`,
+    ...steps.map((s,i)=>`${i+1}. ${s.task.icon} ${s.task.title} — ${s.d} мин\n   Зачем: ${s.task.why}\n   Приятная привязка: ${s.task.bundle}`),
+    ``,
+    `Формула: не думать о всей жизни. Выполнить первый блок ${steps[0].d} минут.`,
+    `Финиш: отметить время выполнения в MARKOV OS.`
+  ].join("\n");
+
+  return {text: result, steps, used, current};
+}
+
+function stateLabel(v){
+  return ({normal:"норма", low:"низкая энергия", tired:"устал после клиентов", chaos:"хаос в голове", phone:"тянет в телефон", strong:"готов давить"})[v] || "норма";
+}
+function priorityLabel(v){
+  return ({pm:"PM / будущая профессия", body:"тело / сушка", content:"контент / бренд", recovery:"восстановление", money:"деньги / работа", full:"полная система"})[v] || "PM";
+}
+function toneLabel(v){
+  return ({soft:"мягкий", balanced:"сбалансированный", hard:"жёсткий"})[v] || "сбалансированный";
+}
+
+function renderAutomation(){
+  document.getElementById('automation').innerHTML=`
+    <div class="card gold magicCard">
+      <h2 class="serif" style="font-size:30px;margin:0 0 8px">🤖 Автоматизация и персональный сборщик плана</h2>
+      <p class="muted">Здесь план собирается не “под одно”, а под твоё состояние, приоритет, доступное время и тон. Блоки читаемые в чёрной и белой теме.</p>
     </div>
-  </div>
 
-  <div class="modal" id="recoveryModal" onclick="if(event.target.id==='recoveryModal')closeRecovery()">
-    <div class="modalCard">
-      <div class="grid g2">
-        <div>
-          <h2 class="serif" style="font-size:34px;margin:0 0 8px;">Возврат в систему</h2>
-          <p class="muted">Срыв — не провал. Это момент, где включается ближайший маленький шаг.</p>
-        </div>
-        <div class="actions" style="justify-content:flex-end;">
-          <button class="btn ghost" onclick="closeRecovery()">Закрыть</button>
-        </div>
-      </div>
-      <div class="grid g4" id="recoveryGrid" style="margin-top:14px;"></div>
-      <div class="card gold" style="margin-top:14px;">
-        <h3>Минимальный шаг</h3>
-        <p class="taskText" id="recoveryAction">Открыть текущую задачу на 5 минут.</p>
-        <div class="why" id="recoveryWhy">Зачем: ты тренируешь возвращение в систему, а не идеальный день.</div>
-        <div class="actions" style="margin-top:14px;">
-          <button class="btn primary" onclick="completeRecovery()">Выполнил. Вернулся.</button>
-          <button class="btn" onclick="setMode('minimum')">Minimum Mode</button>
-          <button class="btn" onclick="setMode('badSleep')">Плохой сон</button>
-          <button class="btn" onclick="setMode('overload')">Перегруз после клиентов</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="whyModal" onclick="if(event.target.id==='whyModal')closeWhy()">
-    <div class="modalCard">
-      <div class="grid g2">
-        <div>
-          <h2 class="serif" style="font-size:34px;margin:0 0 8px;">Зачем всё это</h2>
-          <p class="muted">Каждое действие — кирпич в 2-месячный рывок: PM, деньги, тело, блог, творчество, языки и автоматизация.</p>
-        </div>
-        <div class="actions" style="justify-content:flex-end;">
-          <button class="btn ghost" onclick="closeWhy()">Закрыть</button>
-        </div>
-      </div>
-      <div class="grid g2" id="whyGrid" style="margin-top:14px;"></div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const STORE_KEY = "MARKOV_OS_3_IDEAL";
-    const TODAY = new Date().toISOString().slice(0, 10);
-
-    const navItems = [
-      ["today", "01", "Сегодня", "время и задача"],
-      ["timeline", "02", "Таймлайн", "подсветка по времени"],
-      ["autopilot", "03", "Автопилот", "привязки и награды"],
-      ["pm", "04", "PM Path", "2 месяца"],
-      ["body", "05", "Тело", "сушка и метрики"],
-      ["content", "06", "Контент", "мысль → пост"],
-      ["rituals", "07", "Ритуалы", "утро / ночь"],
-      ["export", "08", "Экспорт", "Obsidian / TickTick"]
-    ];
-
-    const tasks = [
-      { id:"water", time:"11:00", title:"Вода", xp:5, min:"Выпить воду. Запустить тело.", why:"День начинается с управляемого действия, а не с телефона.", result:"Ты входишь в режим человека-системы.", bundle:"После подъёма. Можно включить спокойный трек." },
-      { id:"suppMorning", time:"11:02", title:"БАДЫ УТРО", xp:5, min:"Принять свой утренний стек.", why:"Это слот запуска. Состав ты знаешь сам.", result:"Меньше забывания, больше автоматизма.", bundle:"Вода открывает слот добавок." },
-      { id:"prayerMorning", time:"11:05", title:"Молитва утром", xp:10, min:"60–90 секунд молитвы.", why:"Тебе важны глубина, смысл и внутренняя опора.", result:"День начинается с миссии.", bundle:"После БАДов, без телефона." },
-      { id:"breathMorning", time:"11:08", title:"Дыхание утром", xp:10, min:"3–4 минуты или 10 циклов.", why:"Снижает шум и облегчает вход в PM.", result:"Меньше импульса уйти в телефон.", bundle:"После молитвы, под тихую музыку." },
-      { id:"plan", time:"11:50", title:"План дня", xp:10, min:"Выбрать 3 главные миссии.", why:"Без плана день забирают клиенты, быт и телефон.", result:"Ты видишь маршрут дня.", bundle:"После еды. Галочка запускает день." },
-      { id:"pm", time:"12:10", title:"PM Deep Work", xp:50, min:"10 минут минимум. 60–75 минут норма.", why:"Это мост к Middle+/Senior-style PM.", result:"Кейсы, портфолио, речь PM, готовность к собеседованию.", bundle:"Кофе/кола зеро + чистый стол + таймер." },
-      { id:"english", time:"13:25", title:"English PM Speaking", xp:30, min:"5 фраз вслух.", why:"Нужен рабочий голос на IT PM-созвоне.", result:"Ты говоришь про scope, risks, blockers, deadlines.", bundle:"Говорить стоя или ходя." },
-      { id:"contentIdea", time:"13:45", title:"1 мысль в Obsidian", xp:15, min:"Записать одну мысль.", why:"Контент начинается не с камеры, а с мысли.", result:"60 мыслей за 2 месяца = сырьё для блога.", bundle:"После English или после кардио." },
-      { id:"languageMeal", time:"за едой", title:"Spanish / Chinese", xp:10, min:"10–15 минут за едой.", why:"Ты заменяешь мусорные ролики когнитивной прокачкой.", result:"Языки растут без отдельного тяжёлого блока.", bundle:"Еда открывает язык." },
-      { id:"work", time:"16:00–22:00", title:"Работа / деньги", xp:30, min:"Выполнить рабочий блок.", why:"Деньги — один из главных приоритетов.", result:"Финансовая база и ресурс.", bundle:"Это блок монетизации личности." },
-      { id:"strength", time:"16:00–22:00", title:"Силовая тренировка", xp:30, min:"Силовая внутри окна работы.", why:"Тело — часть бренда, силы и уверенности.", result:"Сушка без потери мышц и плотности.", bundle:"Тренировка встроена между клиентами." },
-      { id:"cardio", time:"22:30", title:"Кардио + YouTube", xp:20, min:"25 минут кардио.", why:"Приятное тянет полезное. Эта привычка уже работает.", result:"Сушка, сердце, расход энергии, стабильность.", bundle:"YouTube только на кардио/прогулке/быту." },
-      { id:"postCardioNote", time:"23:00", title:"Мысль после кардио", xp:10, min:"1 голосовая или 1 строка.", why:"После кардио часто появляются чистые мысли.", result:"Контент-пул растёт без насилия.", bundle:"Душ открывает фиксацию мысли." },
-      { id:"creative", time:"00:15", title:"Творчество", xp:25, min:"15 минут книги, блога или SUNO.", why:"Творчество собирает личный бренд.", result:"Каста, книга, музыка и сценарии получают топливо.", bundle:"Награда после базы." },
-      { id:"review", time:"01:45", title:"Вечерний разбор", xp:20, min:"3 строки: сделал / слил / завтра.", why:"Без review опыт не превращается в рост.", result:"Ты видишь прогресс и слабые места.", bundle:"Низкий свет, чай, тишина." },
-      { id:"suppNight", time:"02:10", title:"БАДЫ НОЧЬ", xp:5, min:"Принять свой ночной стек.", why:"Это слот выключения системы.", result:"Меньше забывания, лучше закрытие дня.", bundle:"После review." },
-      { id:"prayerNight", time:"02:12", title:"Молитва на ночь", xp:10, min:"60 секунд молитвы.", why:"Закрывает день без чувства вины.", result:"Психика получает точку завершения.", bundle:"После ночных БАДов." },
-      { id:"breathNight", time:"02:15", title:"Дыхание на ночь", xp:10, min:"3–4 минуты.", why:"Снимает возбуждение после дня.", result:"Выше шанс лечь до 03:00.", bundle:"Лёжа, без героизма." },
-      { id:"sleep", time:"03:00", title:"Сон до 03:00", xp:25, min:"Закрыть экраны и лечь.", why:"Сон — главный множитель PM, тела и восстановления.", result:"Завтра выше КПД.", bundle:"Финальный сейв персонажа." }
-    ];
-
-    const blocks = [
-      ["11:00", "Запуск системы", ["water","suppMorning","prayerMorning","breathMorning"]],
-      ["11:30", "Еда + язык", ["languageMeal"]],
-      ["11:50", "План дня", ["plan"]],
-      ["12:10", "PM Deep Work", ["pm"]],
-      ["13:25", "English PM Speaking", ["english"]],
-      ["13:45", "Контент-минимум", ["contentIdea"]],
-      ["16:00–22:00", "Деньги + тело", ["work","strength"]],
-      ["22:30", "Кардио + YouTube", ["cardio"]],
-      ["23:00", "Душ + мысль", ["postCardioNote"]],
-      ["00:15", "Творчество", ["creative"]],
-      ["01:45", "Вечерний разбор", ["review"]],
-      ["02:10", "Закрытие", ["suppNight","prayerNight","breathNight"]],
-      ["03:00", "Сон", ["sleep"]]
-    ];
-
-    const pmWeeks = [
-      ["1", "Фундамент PM", "Проект, роль PM, lifecycle, scope/time/cost/quality.", "Project Charter"],
-      ["2", "Agile / Scrum / Kanban", "Backlog, sprint, daily, retro, demo.", "Agile cheat-sheet"],
-      ["3", "Инструменты", "Jira/Trello, tasks, status, priority.", "Доска проекта"],
-      ["4", "Риски и коммуникация", "Risk Register, Communication Plan, Status Report.", "Risk + Status"],
-      ["5", "Кейс MARKOV OS", "Scope, backlog, roadmap, MVP, metrics.", "PM-кейс MARKOV OS"],
-      ["6", "Каста Феодалов", "Media pipeline, content delivery, stakeholders.", "PM-кейс медиа"],
-      ["7", "Фитнес-наставничество", "Service process, client journey, metrics.", "PM-кейс сервиса"],
-      ["8", "Рынок", "CV, portfolio, mock interviews, English PM calls.", "Резюме + портфолио"]
-    ];
-
-    const phrases = [
-      ["Let me clarify the scope before we commit to the deadline.", "Лэт ми клэрифай зэ скоуп бифор ви коммит ту зэ дедлайн.", "Давайте уточним объём работ, прежде чем подтвердим срок."],
-      ["What is the current blocker?", "Уот из зэ карэнт блокэр?", "Какой сейчас блокер?"],
-      ["Could you estimate this task?", "Куд ю эстимэйт зис таск?", "Можешь оценить эту задачу?"],
-      ["Let's align on priorities.", "Лэтс элайн он прайоритиз.", "Давайте согласуем приоритеты."],
-      ["I will send a short status update today.", "Ай вил сэнд э шорт стэйтэс апдэйт тудэй.", "Сегодня я отправлю короткий статус-апдейт."]
-    ];
-
-    const defaults = {
-      settings: { theme: "black", startDate: new Date().toISOString().slice(0,10), mode: "normal", obsidianVault: "" },
-      logs: {},
-      ideas: [],
-      rituals: {
-        morning: "Я не жду идеального состояния. Я включаю систему.",
-        night: "День сохранён. Завтра я продолжаю."
-      }
-    };
-
-    let state = load();
-    let focusInterval = null;
-    let focusLeft = 0;
-    let activeSection = "today";
-
-    function load() {
-      try {
-        return deepMerge(defaults, JSON.parse(localStorage.getItem(STORE_KEY) || "{}"));
-      } catch (e) {
-        return structuredClone(defaults);
-      }
-    }
-
-    function deepMerge(base, extra) {
-      const out = Array.isArray(base) ? [...base] : { ...base };
-      for (const key in extra) {
-        if (extra[key] && typeof extra[key] === "object" && !Array.isArray(extra[key])) out[key] = deepMerge(base[key] || {}, extra[key]);
-        else out[key] = extra[key];
-      }
-      return out;
-    }
-
-    function save() {
-      localStorage.setItem(STORE_KEY, JSON.stringify(state));
-      document.documentElement.dataset.theme = state.settings.theme;
-      document.querySelector('meta[name="theme-color"]').content = state.settings.theme === "white" ? "#f4f1e9" : "#050507";
-    }
-
-    function log() {
-      const today = getTodayKey();
-      if (!state.logs[today]) state.logs[today] = { date: today, tasks: {}, fields: {}, review: {}, mode: "normal" };
-      return state.logs[today];
-    }
-
-    function getTodayKey() {
-      return new Date().toISOString().slice(0,10);
-    }
-
-    function taskState(id) {
-      return log().tasks[id] || { done: false, doneAt: "", plannedAt: "" };
-    }
-
-    function isDone(id) {
-      return !!taskState(id).done;
-    }
-
-    function markTask(id, silent = false) {
-      const task = tasks.find(t => t.id === id);
-      const s = taskState(id);
-      if (s.done) {
-        log().tasks[id] = { done: false, doneAt: "", plannedAt: task ? task.time : "" };
-        if (!silent) toast("Снято с выполнения.");
-      } else {
-        log().tasks[id] = { done: true, doneAt: timeNow(), plannedAt: task ? task.time : "" };
-        if (!silent) toast("Выполнено в " + timeNow() + ". XP засчитан.");
-      }
-      save();
-      render();
-    }
-
-    function timeNow() {
-      return new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-    }
-
-    function dateNow() {
-      return new Date().toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-    }
-
-    function setField(key, value) {
-      log().fields[key] = value;
-      save();
-    }
-
-    function field(key) {
-      return log().fields[key] || "";
-    }
-
-    function parseTime(label) {
-      const first = label.split("–")[0];
-      const parts = first.split(":").map(Number);
-      let h = parts[0];
-      let m = parts[1] || 0;
-      let total = h * 60 + m;
-      if (h < 6) total += 1440;
-      return total;
-    }
-
-    function nowMinutes() {
-      const d = new Date();
-      let total = d.getHours() * 60 + d.getMinutes();
-      if (d.getHours() < 6) total += 1440;
-      return total;
-    }
-
-    function currentBlock() {
-      const current = nowMinutes();
-      let result = blocks[0];
-      for (const block of blocks) {
-        if (current >= parseTime(block[0])) result = block;
-      }
-      return result;
-    }
-
-    function nextBlock() {
-      const current = nowMinutes();
-      for (const block of blocks) {
-        if (parseTime(block[0]) > current) return block;
-      }
-      return blocks[0];
-    }
-
-    function currentTask() {
-      const block = currentBlock();
-      const candidates = block[2].map(id => tasks.find(t => t.id === id)).filter(Boolean);
-      return candidates.find(t => !isDone(t.id)) || tasks.find(t => !isDone(t.id)) || tasks[0];
-    }
-
-    function completedCount() {
-      return tasks.filter(t => isDone(t.id)).length;
-    }
-
-    function percentDone() {
-      return Math.round(completedCount() / tasks.length * 100);
-    }
-
-    function xpOf(logItem) {
-      return tasks.reduce((sum, t) => sum + (logItem.tasks?.[t.id]?.done ? t.xp : 0), 0);
-    }
-
-    function xpToday() {
-      return xpOf(log());
-    }
-
-    function xpTotal() {
-      return Object.values(state.logs).reduce((sum, l) => sum + xpOf(l), 0);
-    }
-
-    function rankInfo() {
-      const ranks = [["Новобранец",0],["Воин",350],["Феодал",1000],["Архитектор",2100],["Суверен",3600],["Легенда",5400]];
-      const xp = xpTotal();
-      let cur = ranks[0], next = ranks[ranks.length - 1];
-      for (let i=0;i<ranks.length;i++) {
-        if (xp >= ranks[i][1]) cur = ranks[i];
-        if (xp < ranks[i][1]) { next = ranks[i]; break; }
-      }
-      return { cur: cur[0], next: next[0], xp, p: Math.min(100, Math.round((xp - cur[1]) / Math.max(1, next[1] - cur[1]) * 100)) };
-    }
-
-    function daysLeft() {
-      const start = new Date(state.settings.startDate || getTodayKey());
-      const target = new Date(start);
-      target.setDate(target.getDate() + 60);
-      return Math.max(0, Math.ceil((target - new Date()) / 86400000));
-    }
-
-    function rewardUnlocked() {
-      return ["water","suppMorning","prayerMorning","breathMorning","pm","english","contentIdea"].every(isDone);
-    }
-
-    function modeLabel() {
-      const mode = log().mode || state.settings.mode;
-      return { normal:"Normal", minimum:"Minimum", badSleep:"Плохой сон", overload:"Перегруз" }[mode] || "Normal";
-    }
-
-    function setMode(mode) {
-      log().mode = mode;
-      state.settings.mode = mode;
-      save();
-      closeRecovery();
-      render();
-      toast("Режим включён: " + modeLabel());
-    }
-
-    function renderNav() {
-      document.getElementById("nav").innerHTML = navItems.map(i => `
-        <button data-go="${i[0]}" onclick="go('${i[0]}')">
-          <span class="n">${i[1]}</span>
-          <span><b>${i[2]}</b><br><small>${i[3]}</small></span>
-        </button>
-      `).join("");
-
-      document.getElementById("mobilebar").innerHTML = navItems.slice(0,5).map(i => `
-        <button data-go="${i[0]}" onclick="go('${i[0]}')">${i[2]}</button>
-      `).join("");
-
-      updateActiveNav();
-    }
-
-    function go(id) {
-      activeSection = id;
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      const item = navItems.find(i => i[0] === id);
-      document.getElementById("pageTitle").textContent = item[2];
-      document.getElementById("pageSubtitle").textContent = item[3];
-      updateActiveNav();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function updateActiveNav() {
-      document.querySelectorAll("[data-go]").forEach(b => b.classList.toggle("active", b.dataset.go === activeSection));
-    }
-
-    function render() {
-      save();
-      renderToday();
-      renderTimeline();
-      renderAutopilot();
-      renderPM();
-      renderBody();
-      renderContent();
-      renderRituals();
-      renderExport();
-      updateActiveNav();
-    }
-
-    function renderToday() {
-      const task = currentTask();
-      const block = currentBlock();
-      const next = nextBlock();
-      const rank = rankInfo();
-
-      document.getElementById("today").innerHTML = `
-        <div class="hero">
-          <div class="card gold">
-            <span class="tag gold">Сейчас · ${block[0]} · ${block[1]}</span>
-            <div class="clockRow">
-              <div class="clock" id="liveClock">${timeNow()}</div>
-              <div class="dateLine">${dateNow()}<br>Режим: ${modeLabel()} · следующий блок: ${next[0]} / ${next[1]}</div>
-            </div>
-
-            <h1 class="taskTitle">${task.title}</h1>
-            <p class="taskText">${task.min}</p>
-
-            <div class="why">
-              <b>Зачем:</b> ${task.why}<br><br>
-              <b>К чему приведёт:</b> ${task.result}<br><br>
-              <b>Приятная привязка:</b> ${task.bundle}
-            </div>
-
-            <div class="actions" style="margin-top:14px;">
-              <button class="btn primary" onclick="markTask('${task.id}')">Выполнил сейчас</button>
-              <button class="btn" onclick="openCurrentTask()">Открыть</button>
-              <button class="btn green" onclick="startCurrentFocus()">5 минут</button>
-              <button class="btn red" onclick="showRecovery()">Я сливаюсь</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="ring" style="--p:${percentDone()}"><span>${percentDone()}%</span></div>
-            <h2 class="serif" style="text-align:center;margin:0 0 4px;">${rank.cur}</h2>
-            <p class="muted small" style="text-align:center;">XP сегодня: ${xpToday()} · всего: ${rank.xp}<br>До финиша: ${daysLeft()} дней</p>
-            <div class="bar"><i style="width:${rank.p}%"></i></div>
-            <p class="muted small" style="text-align:center;">Следующий ранг: ${rank.next}</p>
-          </div>
-        </div>
-
-        <div class="grid g4" style="margin-top:14px;">
-          ${stat("Выполнено", `${completedCount()}/${tasks.length}`, "с отметкой времени")}
-          ${stat("Текущий блок", block[1], block[0])}
-          ${stat("Reward Gate", rewardUnlocked() ? "Открыт" : "Закрыт", "приятное после минимума")}
-          ${stat("Тема", state.settings.theme === "white" ? "Белая" : "Чёрная", "переключается кнопкой")}
-        </div>
-
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Автопилот дня</h3>
-            <div class="checklist">${tasks.map(t => taskCheck(t)).join("")}</div>
-          </div>
-          <div class="grid">
-            <div class="card green">
-              <h3>Почему надо выполнить именно сейчас</h3>
-              <p class="taskText">${motivationFor(task)}</p>
-              <div class="why">MARKOV OS убирает лишнее мышление: показывает время, подсвечивает текущий блок, предлагает ближайший шаг и сохраняет факт выполнения.</div>
-            </div>
-            <div class="card">
-              <h3>Быстрый ввод</h3>
-              <div class="grid g2">
-                ${input("weight", "Вес", "100.0")}
-                ${input("wellbeing", "Самочувствие", "7")}
-                ${input("energyMorning", "Энергия утром", "7")}
-                ${input("energyNight", "Энергия ночью", "5")}
-              </div>
-              <label style="margin-top:12px;">
-                <span>Мысль дня</span>
-                <textarea onchange="setField('note', this.value)" placeholder="Одна мысль — уже контент.">${esc(field("note"))}</textarea>
-              </label>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function stat(label, value, hint) {
-      return `<div class="stat"><div class="label">${label}</div><div class="value">${value}</div><div class="hint">${hint}</div></div>`;
-    }
-
-    function taskCheck(t) {
-      const s = taskState(t.id);
-      const current = currentTask().id === t.id;
-      return `
-        <label class="check ${s.done ? "done" : ""} ${current ? "current" : ""}">
-          <input type="checkbox" ${s.done ? "checked" : ""} onchange="markTask('${t.id}')">
-          <span><b>${t.title}</b><small>План: ${t.time} · ${t.min}<br>${t.why}</small></span>
-          <span class="stamp">${s.done ? "✓ " + s.doneAt : "XP " + t.xp}</span>
-        </label>
-      `;
-    }
-
-    function input(key, label, placeholder) {
-      return `<label><span>${label}</span><input value="${esc(field(key))}" placeholder="${placeholder}" onchange="setField('${key}', this.value)"></label>`;
-    }
-
-    function motivationFor(task) {
-      return `Сделай “${task.title}” сейчас. Минимальная версия уже засчитывается. Это не просто галочка — это повторение личности, которая идёт к PM, деньгам, телу, блогу и контролю.`;
-    }
-
-    function renderTimeline() {
-      const current = currentBlock();
-      document.getElementById("timeline").innerHTML = `
-        <div class="card gold">
-          <h2 class="serif" style="font-size:32px;margin:0 0 8px;">Таймлайн с подсветкой</h2>
-          <p class="muted">Активный блок подсвечивается по текущему времени. Выполненные действия получают точное время выполнения.</p>
-        </div>
-        <div class="timeline" style="margin-top:14px;">
-          ${blocks.map(b => timeBlock(b, current)).join("")}
-        </div>
-      `;
-    }
-
-    function timeBlock(b, current) {
-      const allDone = b[2].every(isDone);
-      const isCurrent = b[0] === current[0];
-      return `
-        <div class="timeblock ${isCurrent ? "current" : ""} ${allDone ? "done" : ""}">
-          <div class="time">${b[0]}</div>
-          <div>
-            <b>${b[1]}</b><br>
-            <span class="muted small">${b[2].map(id => tasks.find(t => t.id === id).title).join(" · ")}</span>
-            <div style="margin-top:8px;">
-              ${b[2].map(id => {
-                const t = tasks.find(x => x.id === id);
-                const s = taskState(id);
-                return `<span class="tag ${s.done ? "green" : isCurrent ? "gold" : ""}">${t.title}: ${s.done ? s.doneAt : "ожидает"}</span>`;
-              }).join(" ")}
-            </div>
-          </div>
-          <div class="actions">
-            ${b[2].map(id => `<button class="btn ghost" onclick="markTask('${id}')">${isDone(id) ? "Снять" : "Выполнить"}</button>`).join("")}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAutopilot() {
-      document.getElementById("autopilot").innerHTML = `
-        <div class="card gold">
-          <h2 class="serif" style="font-size:32px;margin:0 0 8px;">Автопилот выполнения</h2>
-          <p class="muted">Триггер → минимальный шаг → отметка времени → приятное подкрепление.</p>
-        </div>
-
-        <div class="grid g3" style="margin-top:14px;">
-          ${rule("Проснулся", "Вода → БАДЫ УТРО → молитва → дыхание", "Утро не отдаётся телефону.")}
-          ${rule("Сел за PM", "Таймер 5 минут → конкретный кейс", "Не учёба ради учёбы, а PM-артефакт.")}
-          ${rule("Еда", "Spanish или Chinese 10 минут", "Языки вместо мусорных роликов.")}
-          ${rule("Пришёл домой", "Кардио → YouTube", "Приятное тянет полезное.")}
-          ${rule("Закончил кардио", "1 мысль в Obsidian", "Контент появляется без насилия.")}
-          ${rule("01:45", "3 строки review", "Опыт превращается в рост.")}
-        </div>
-
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>If → then план</h3>
-            <label><span>Препятствие</span>
-              <select id="obstacle">
-                <option>тянет в телефон</option>
-                <option>нет сил</option>
-                <option>не знаю с чего начать</option>
-                <option>перфекционизм</option>
-                <option>устал после клиентов</option>
-                <option>поздний сон</option>
-              </select>
-            </label>
-            <button class="btn primary" style="margin-top:12px;" onclick="makeIfThen()">Собрать план</button>
-            <textarea id="ifThenOutput" class="copybox" style="margin-top:12px;"></textarea>
-          </div>
-
-          <div class="card green">
-            <h3>Приятное подкрепление</h3>
-            <table>
-              <tr><th>Приятное</th><th>Когда можно</th></tr>
-              <tr><td>YouTube</td><td>кардио, прогулка, быт</td></tr>
-              <tr><td>Скролл 30 минут</td><td>после минимума дня</td></tr>
-              <tr><td>Творчество</td><td>после базы дня</td></tr>
-              <tr><td>Видео за едой</td><td>заменить языком</td></tr>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    function rule(a,b,c) {
-      return `<div class="card"><span class="tag gold">if → then</span><h4>${a}</h4><p class="taskText" style="font-size:17px;">${b}</p><p class="muted small">${c}</p></div>`;
-    }
-
-    function makeIfThen() {
-      const o = document.getElementById("obstacle").value;
-      document.getElementById("ifThenOutput").value = `Если ${o}, то я делаю не идеальный план, а минимальный вход:
-
-1. 10 циклов дыхания.
-2. Открыть текущую задачу на 5 минут.
-3. Отметить выполнение в MARKOV OS.
-4. Если минимум выполнен — разрешить 30 минут приятного без вины.
-
-Зачем: я тренирую возврат в систему, а не идеальный день.`;
-    }
-
-    function renderPM() {
-      const week = Math.min(8, Math.max(1, Math.floor((new Date() - new Date(state.settings.startDate || getTodayKey())) / 604800000) + 1));
-      document.getElementById("pm").innerHTML = `
-        <div class="card gold">
-          <h2 class="serif" style="font-size:32px;margin:0 0 8px;">PM Path</h2>
-          <p class="muted">Цель: Middle+/Senior-style подача к осени. Не просто знания, а кейсы, артефакты, речь и портфолио.</p>
-          <div class="actions" style="margin-top:12px;">
-            <button class="btn primary" onclick="copyText(pmPrompt())">Скопировать PM-промт</button>
-            <button class="btn" onclick="markTask('pm')">PM выполнен</button>
-          </div>
-        </div>
-
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Задача дня</h3>
-            <p class="taskText">${pmDaily()}</p>
-            <div class="why">Каждый PM-блок должен создавать артефакт: Risk Register, backlog, status report, stakeholder map, roadmap.</div>
-            <label style="margin-top:12px;"><span>Артефакт сегодня</span><textarea onchange="setField('pmArtifact', this.value)">${esc(field("pmArtifact"))}</textarea></label>
-          </div>
-          <div class="card">
-            <h3>English PM фразы</h3>
-            ${phrases.map((p, i) => `<div class="stat" style="margin-bottom:9px;"><div class="label">Phrase ${i+1}</div><b>${p[0]}</b><div class="muted mini">${p[1]}</div><div class="mini">${p[2]}</div></div>`).join("")}
-          </div>
-        </div>
-
-        <div class="grid" style="margin-top:14px;">
-          ${pmWeeks.map(w => `<div class="card ${Number(w[0]) === week ? "gold" : ""}"><span class="tag gold">Неделя ${w[0]}</span><h4>${w[1]}</h4><p class="muted small">${w[2]}</p><span class="tag">${w[3]}</span></div>`).join("")}
-        </div>
-      `;
-    }
-
-    function pmDaily() {
-      const list = [
-        "Weekly review: что создано, что доказано, что показать на собеседовании.",
-        "Создай Risk Register для MARKOV OS: 5 рисков и план реакции.",
-        "Собери backlog из 10 задач для MARKOV OS.",
-        "Напиши status report: done / next / risks / blockers.",
-        "Сделай Stakeholder Map для Касты Феодалов.",
-        "Проговори daily standup на английском.",
-        "Разбери конфликт: клиент меняет scope перед дедлайном."
-      ];
-      return list[new Date().getDay()];
-    }
-
-    function pmPrompt() {
-      return `Ты — PM-ментор Павла Маркова. Задача дня: ${pmDaily()}
-
-Дай:
-1. объяснение 20/80;
-2. шаблон артефакта;
-3. пример на MARKOV OS;
-4. 5 English PM phrases с русской транскрипцией;
-5. задание на 20 минут.`;
-    }
-
-    function renderBody() {
-      const weight = parseFloat(field("weight") || 100);
-      const height = 188;
-      const age = 29;
-      const bf = 15;
-      const lbm = weight * (1 - bf/100);
-      const mifflin = Math.round(10 * weight + 6.25 * height - 5 * age + 5);
-      const katch = Math.round(370 + 21.6 * lbm);
-      const tdee = Math.round(((mifflin + katch) / 2) * 1.62);
-
-      document.getElementById("body").innerHTML = `
-        <div class="card gold">
-          <h2 class="serif" style="font-size:32px;margin:0 0 8px;">Тело: управляемая сушка</h2>
-          <p class="muted">29 лет, 188 см, ~100–101 кг, жир ~14–16%. Цель: 96–98 кг без потери силы и наполненности.</p>
-        </div>
-
-        <div class="grid g4" style="margin-top:14px;">
-          ${stat("BMR Mifflin", mifflin + " ккал", "по текущему весу")}
-          ${stat("BMR Katch", katch + " ккал", "LBM ~" + Math.round(lbm) + " кг")}
-          ${stat("TDEE", tdee + " ккал", "оценка расхода")}
-          ${stat("Темп", "−0.4–0.8 кг", "в неделю")}
-        </div>
-
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Трекер формы</h3>
-            <div class="grid g2">
-              ${input("weight", "Вес", "100.0")}
-              ${input("waistNarrow", "Талия узкое", "см")}
-              ${input("waistNavel", "Талия пупок", "см")}
-              ${input("waistLow", "2 см ниже", "см")}
-              ${input("wellbeing", "Самочувствие", "7")}
-              ${input("energyNight", "Энергия вечер", "5")}
-            </div>
-            <div class="actions" style="margin-top:12px;">
-              <button class="btn" onclick="markTask('strength')">Силовая</button>
-              <button class="btn" onclick="markTask('cardio')">Кардио</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Целевые веса</h3>
-            <table>
-              <tr><th>Жир</th><th>Вес</th></tr>
-              ${[14,12,10,9,8].map(x => `<tr><td>${x}%</td><td>${(lbm / (1 - x/100)).toFixed(1)} кг</td></tr>`).join("")}
-            </table>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h3>Калории и БЖУ</h3>
-          <table>
-            <tr><th>День</th><th>Ккал</th><th>Белки</th><th>Жиры</th><th>Углеводы</th></tr>
-            <tr><td>Тренировочный</td><td>2800–2900</td><td>240–250</td><td>60–70</td><td>300–340</td></tr>
-            <tr><td>Нетренировочный</td><td>2600–2700</td><td>240–260</td><td>70–80</td><td>220–260</td></tr>
-            <tr><td>Выходной</td><td>2500–2600</td><td>240–260</td><td>70–80</td><td>190–240</td></tr>
-          </table>
-        </div>
-      `;
-    }
-
-    function renderContent() {
-      document.getElementById("content").innerHTML = `
-        <div class="card gold">
-          <h2 class="serif" style="font-size:32px;margin:0 0 8px;">Контент без рутины</h2>
-          <p class="muted">Одна мысль → Telegram → Reels/Shorts → Stories → VK. Сначала сырьё, потом оформление.</p>
-        </div>
-
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Новая мысль</h3>
-            <textarea id="ideaInput" placeholder="Запиши мысль. Не идеально. Просто зафиксируй."></textarea>
-            <div class="actions" style="margin-top:12px;">
-              <button class="btn primary" onclick="addIdea()">Сохранить</button>
-              <button class="btn" onclick="markTask('contentIdea')">Мысль выполнена</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Генератор черновика</h3>
-            <select id="contentType">
-              <option value="telegram">Telegram</option>
-              <option value="reels">Reels / Shorts</option>
-              <option value="stories">Stories</option>
-              <option value="vk">VK</option>
-            </select>
-            <button class="btn" style="margin-top:12px;" onclick="generateContent()">Сделать черновик</button>
-            <textarea id="contentOutput" class="copybox" style="margin-top:12px;"></textarea>
-            <button class="btn ghost" onclick="copyText(document.getElementById('contentOutput').value)">Скопировать</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h3>Архив идей</h3>
-          <div class="timeline">
-            ${state.ideas.slice().reverse().map(i => `<div class="timeblock"><span class="tag gold">${i.status}</span><div><b>${esc(i.text)}</b><br><span class="muted small">${i.date}</span></div><select onchange="updateIdeaStatus('${i.id}', this.value)">${["idea","scripted","recorded","edited","posted","repurposed"].map(s => `<option ${i.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></div>`).join("") || "<p class='muted'>Пока идей нет.</p>"}
-          </div>
-        </div>
-      `;
-    }
-
-    function addIdea() {
-      const input = document.getElementById("ideaInput");
-      const text = input.value.trim();
-      if (!text) return toast("Напиши мысль.");
-      state.ideas.push({ id: Date.now() + "", date: getTodayKey(), text, status: "idea" });
-      setField("note", text);
-      if (!isDone("contentIdea")) log().tasks.contentIdea = { done: true, doneAt: timeNow(), plannedAt: "13:45" };
-      input.value = "";
-      save();
-      render();
-      toast("Идея сохранена. Контент начал жить.");
-    }
-
-    function generateContent() {
-      const text = document.getElementById("ideaInput").value.trim() || (state.ideas.at(-1) ? state.ideas.at(-1).text : "");
-      if (!text) return toast("Нет мысли.");
-      const type = document.getElementById("contentType").value;
-      const templates = {
-        telegram: `${text}\n\nВывод: система сильнее настроения. Один маленький шаг сохраняет день.\n\n— Павел Марков`,
-        reels: `Крючок: "Ты сливаешься не потому, что слабый. У тебя нет ближайшего шага."\n\n1. ${text}\n2. Личный пример.\n3. Правило: 5 минут полезного → потом приятное.\n4. Финал: "Не жди мотивацию. Собери систему."`,
-        stories: `1. ${text}\n2. Опрос: "Сливаешься из-за телефона?"\n3. Финал: "Минимум сохраняет день."`,
-        vk: `${text}\n\nПрактика: открой одну задачу на 5 минут. Не идеально. Просто начни.`
-      };
-      document.getElementById("contentOutput").value = templates[type];
-    }
-
-    function updateIdeaStatus(id, status) {
-      const idea = state.ideas.find(i => i.id === id);
-      if (!idea) return;
-      idea.status = status;
-      save();
-      toast("Статус обновлён.");
-    }
-
-    function renderRituals() {
-      document.getElementById("rituals").innerHTML = `
+    <div class="planHero">
+      <div class="card gold">
+        <h3>Собрать индивидуальный план</h3>
         <div class="grid g2">
-          <div class="card gold">
-            <h2 class="serif">Утро — запуск</h2>
-            <div class="checklist">${["water","suppMorning","prayerMorning","breathMorning","plan"].map(id => taskCheck(tasks.find(t => t.id === id))).join("")}</div>
-            <label style="margin-top:12px;"><span>Фраза / молитва</span><textarea onchange="state.rituals.morning = this.value; save()">${esc(state.rituals.morning)}</textarea></label>
-          </div>
-
-          <div class="card gold">
-            <h2 class="serif">Ночь — выключение</h2>
-            <div class="checklist">${["review","suppNight","prayerNight","breathNight","sleep"].map(id => taskCheck(tasks.find(t => t.id === id))).join("")}</div>
-            <label style="margin-top:12px;"><span>Фраза / молитва</span><textarea onchange="state.rituals.night = this.value; save()">${esc(state.rituals.night)}</textarea></label>
-          </div>
+          <label><span>Состояние сейчас</span>
+            <select id="planState">
+              <option value="normal">Норма: могу работать</option>
+              <option value="low">Низкая энергия</option>
+              <option value="tired">Устал после клиентов</option>
+              <option value="chaos">Хаос в голове</option>
+              <option value="phone">Тянет в телефон</option>
+              <option value="strong">Готов давить</option>
+            </select>
+          </label>
+          <label><span>Главный приоритет</span>
+            <select id="planPriority">
+              <option value="pm">PM / будущая профессия</option>
+              <option value="body">Тело / сушка</option>
+              <option value="content">Контент / бренд</option>
+              <option value="money">Деньги / работа</option>
+              <option value="recovery">Восстановление</option>
+              <option value="full">Полная система</option>
+            </select>
+          </label>
+          <label><span>Сколько есть времени</span>
+            <select id="planMinutes">
+              <option value="5">5 минут — только вход</option>
+              <option value="15">15 минут — минимум</option>
+              <option value="30" selected>30 минут — рабочий блок</option>
+              <option value="60">60 минут — нормальный рывок</option>
+              <option value="90">90 минут — сильный рывок</option>
+            </select>
+          </label>
+          <label><span>Тон</span>
+            <select id="planTone">
+              <option value="soft">Мягко</option>
+              <option value="balanced" selected>Сбалансированно</option>
+              <option value="hard">Жёстко</option>
+            </select>
+          </label>
         </div>
-
-        <div class="card" style="margin-top:14px;">
-          <h3>Вечерний review</h3>
-          <div class="grid g3">
-            <label><span>Что сделал</span><textarea onchange="log().review.done = this.value; save()">${esc(log().review.done || "")}</textarea></label>
-            <label><span>Где слил</span><textarea onchange="log().review.leak = this.value; save()">${esc(log().review.leak || "")}</textarea></label>
-            <label><span>Завтра главное</span><textarea onchange="log().review.tomorrow = this.value; save()">${esc(log().review.tomorrow || "")}</textarea></label>
-          </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" onclick="buildPersonalPlan()">⚡ Собрать план</button>
+          <button class="btn" onclick="copyPersonalPlan()">Скопировать</button>
+          <button class="btn green" onclick="savePersonalPlan()">Сохранить в день</button>
         </div>
-      `;
-    }
+        <textarea id="customPlanOut" class="copybox" style="margin-top:12px" placeholder="Здесь появится персональный план. Текст теперь читаемый в обеих темах."></textarea>
+      </div>
 
-    function renderExport() {
-      document.getElementById("export").innerHTML = `
-        <div class="grid g4">
-          ${stat("XP всего", xpTotal(), "накоплено")}
-          ${stat("XP сегодня", xpToday(), "за день")}
-          ${stat("Выполнено", `${completedCount()}/${tasks.length}`, "сегодня")}
-          ${stat("До финиша", daysLeft() + " дней", "60 дней")}
+      <div class="card green">
+        <h3>Сколько времени уделить сейчас</h3>
+        <div id="timeAdvice">${renderTimeAdvice()}</div>
+        <div class="why" style="margin-top:12px">
+          <b>Правило Павла:</b> если сопротивление высокое — 5 минут. Если вошёл — продлить до 25. Если пошло — закрыть полноценный блок.
         </div>
+      </div>
+    </div>
 
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Obsidian</h3>
-            <label><span>Vault name, если нужен</span><input value="${esc(state.settings.obsidianVault)}" onchange="state.settings.obsidianVault = this.value; save()" placeholder="Например: MARKOV"></label>
-            <textarea class="copybox" id="obsidianBox" readonly style="margin-top:12px;">${esc(obsidianText())}</textarea>
-            <div class="actions" style="margin-top:12px;">
-              <button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button>
-              <button class="btn" onclick="copyText(obsidianText())">Скопировать</button>
-            </div>
-            <p class="muted mini">Прямое создание заметки работает через Obsidian URI, если Obsidian установлен и разрешает protocol links. Иначе текст копируется в буфер.</p>
-          </div>
+    <div class="toolGrid" style="margin-top:13px">
+      ${automationToolCard("🧠 PM-рывок", "75 минут PM в день 5 раз в неделю = 25 часов в месяц. Это уже портфолио, а не “я немного учил”.", "pm")}
+      ${automationToolCard("📺 Кардио + YouTube", "25 минут кардио 5 раз в неделю = 500 минут движения в месяц. Приятное тянет сушку.", "cardio")}
+      ${automationToolCard("✍️ Контент-банк", "1 мысль в день = 60 сырых идей за цикл. Это топливо для Telegram, Shorts, Reels и книги.", "contentIdea")}
+    </div>
 
-          <div class="card">
-            <h3>TickTick</h3>
-            <textarea class="copybox" id="tickBox" readonly>${esc(ticktickText())}</textarea>
-            <div class="actions" style="margin-top:12px;">
-              <button class="btn primary" onclick="copyText(ticktickText())">Скопировать задачи</button>
-            </div>
-          </div>
+    <div class="card" style="margin-top:13px">
+      <h3>Автоматизации поведения</h3>
+      <div class="grid g3">
+        ${automations.map(a=>`<label class="check ${autoDone(a.id)?'done':''}"><input type="checkbox" ${autoDone(a.id)?'checked':''} onchange="markAuto('${a.id}')"><span><b>${a.icon} ${a.title}</b><small>${a.why}</small></span><span class="stamp ${autoDone(a.id)?'done':''}">${autoDone(a.id)?'✓ '+log().autos[a.id].doneAt:'auto'}</span></label>`).join('')}
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:13px">
+      <div class="card">
+        <h3>If → then быстрый протокол</h3>
+        <label><span>Препятствие</span>
+          <select id="obstacle">
+            <option>тянет в телефон</option>
+            <option>нет сил</option>
+            <option>не знаю с чего начать</option>
+            <option>перфекционизм</option>
+            <option>устал после клиентов</option>
+            <option>поздний сон</option>
+          </select>
+        </label>
+        <button class="btn primary" style="margin-top:12px" onclick="makeIfThen()">Собрать протокол</button>
+        <textarea id="ifThenOutput" class="copybox" style="margin-top:12px"></textarea>
+      </div>
+      <div class="card blue">
+        <h3>Калькулятор дисциплины</h3>
+        ${stat('Сегодня',percent()+'%','выполнено')}
+        ${stat('7 дней',calcAdherence()+'%','среднее')}
+        ${stat('Автоматизации',Object.values(log().autos).filter(x=>x.done).length+'/'+automations.length,'сегодня')}
+      </div>
+    </div>`;
+}
+
+function automationToolCard(title, text, taskId){
+  const t = tasks.find(x=>x.id===taskId) || currentTask();
+  return `<div class="card">
+    <span class="priorityBadge">${title}</span>
+    <p class="muted small" style="margin-top:10px">${text}</p>
+    <div class="actions">
+      <button class="btn" onclick="openTask('${t.id}')">Открыть</button>
+      <button class="btn green" onclick="startFocus(${v7Duration(t)})">⏱ ${v7Duration(t)} мин</button>
+    </div>
+  </div>`;
+}
+
+function renderTimeAdvice(){
+  const t = currentTask();
+  const d = v7Duration(t);
+  return `
+    <div class="planStep">
+      <span class="timePill">5 минут</span>
+      <strong>Когда сопротивление высокое.</strong>
+      <span class="muted small">Цель: просто открыть задачу и войти.</span>
+    </div>
+    <div class="planStep" style="margin-top:8px">
+      <span class="timePill">${Math.min(25,d)} минут</span>
+      <strong>Рабочий вход.</strong>
+      <span class="muted small">Цель: сделать заметный кусок без перегруза.</span>
+    </div>
+    <div class="planStep" style="margin-top:8px">
+      <span class="timePill">${d} минут</span>
+      <strong>Полная версия задачи: ${t.icon} ${t.title}.</strong>
+      <span class="muted small">${t.result}</span>
+    </div>`;
+}
+
+function buildPersonalPlan(){
+  const stateName = document.getElementById("planState").value;
+  const priority = document.getElementById("planPriority").value;
+  const minutes = document.getElementById("planMinutes").value;
+  const tone = document.getElementById("planTone").value;
+  const built = v7PlanByState(stateName, priority, minutes, tone);
+  document.getElementById("customPlanOut").value = built.text;
+  state.settings.tone = tone;
+  log().fields.lastBuiltPlan = built.text;
+  save();
+  toast("Индивидуальный план собран.");
+}
+function copyPersonalPlan(){
+  const v = document.getElementById("customPlanOut")?.value || log().fields.lastBuiltPlan || "";
+  copyText(v);
+}
+function savePersonalPlan(){
+  const v = document.getElementById("customPlanOut")?.value || "";
+  if(!v) return toast("Сначала собери план.");
+  log().fields.personalPlan = v;
+  save();
+  toast("План сохранён в сегодняшний день.");
+}
+
+function makeIfThen(){
+  const o = document.getElementById("obstacle")?.value || "сопротивление";
+  const t = currentTask();
+  const protocol = protocols.find(p => o.includes("телефон") ? p.id==="phone" :
+    o.includes("нет сил") ? p.id==="noenergy" :
+    o.includes("начать") ? p.id==="chaos" :
+    o.includes("перфекционизм") ? p.id==="perfectionism" :
+    o.includes("клиентов") ? p.id==="fatigue" :
+    o.includes("сон") ? p.id==="lateSleep" : p.id==="chaos"
+  );
+  const text = [
+    `MARKOV OS — персональный if → then`,
+    ``,
+    `Если: ${o}`,
+    `Текущая задача: ${t.icon} ${t.title}`,
+    `Рекомендуемое время: ${Math.min(25, v7Duration(t))} минут`,
+    ``,
+    `Протокол:`,
+    ...(protocol ? protocol.steps.map((s,i)=>`${i+1}. ${s}`) : [`1. Открыть текущую задачу.`,`2. Сделать 5 минут.`,`3. Отметить выполнение.`]),
+    ``,
+    `Фраза: ${protocol ? protocol.phrase : "Не думать — выполнить ближайший шаг."}`,
+    ``,
+    `После выполнения: отметить время в MARKOV OS.`
+  ].join("\n");
+  document.getElementById("ifThenOutput").value = text;
+  log().fields.lastIfThen = text;
+  save();
+}
+
+function renderToday(){
+  const t=currentTask(),b=currentBlock(),n=nextBlock(),r=rank();
+  document.getElementById('today').innerHTML=`
+    <div class="hero">
+      <div class="card gold magicCard">
+        <span class="tag gold">${t.icon} Сейчас · ${b[0]} · ${b[1]}</span>
+        <div class="clockRow"><div class="clock" id="liveClock">${timeNow()}</div><div class="dateLine">${dateNow()}<br>Режим: ${modeLabel()} · Следующий блок: ${n[0]} / ${n[1]}</div></div>
+        <h1 class="taskTitle">${t.icon} ${t.title}</h1>
+        <p class="taskText">${t.min}</p>
+        <div class="actions" style="margin:0 0 12px">
+          <span class="timePill">⏱ ${v7Duration(t)} мин</span>
+          <span class="tag gold">План: ${t.time}</span>
+          <span class="tag ${isDone(t.id)?'green':'gold'}">${isDone(t.id)?'Выполнено '+taskState(t.id).doneAt:'Следующее действие'}</span>
         </div>
+        <div class="why"><b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}<br><br><b>Тон:</b> ${toneText(t)}</div>
+        <div class="actions" style="margin-top:13px"><button class="btn primary" onclick="markTask('${t.id}')">✅ Выполнил</button><button class="btn" onclick="openCurrentTask()">Открыть</button><button class="btn green" onclick="startFocus(5)">⏱ 5 минут</button><button class="btn" onclick="startFocus(${v7Duration(t)})">⏳ ${v7Duration(t)} мин</button><button class="btn red" onclick="showRecovery()">🛡 Сливаюсь</button></div>
+        <div class="mobileActionDock"><button class="btn primary" onclick="markTask('${t.id}')">✅ Выполнил</button><button class="btn green" onclick="startFocus(5)">⏱ 5 мин</button></div>
+      </div>
+      <div class="card">
+        <div class="ring" style="--p:${percent()}"><span>${percent()}%</span></div>
+        <h2 class="serif" style="text-align:center;margin:0 0 4px">${r.cur}</h2>
+        <p class="muted small" style="text-align:center">XP сегодня: ${xpToday()} · всего: ${r.xp}<br>До финиша: ${daysLeft()} дней</p>
+        <div class="bar"><i style="width:${r.p}%"></i></div>
+        <p class="muted small" style="text-align:center">Следующий ранг: ${r.next}</p>
+      </div>
+    </div>
+    <div class="grid g4" style="margin-top:13px">${stat('Выполнено',`${completed()}/${tasks.length}`,'с отметкой времени')}${stat('Активный блок',b[1],b[0])}${stat('Reward',rewardUnlocked()?'Открыт':'Закрыт','приятное после минимума')}${stat('7 дней',calcAdherence()+'%','среднее выполнение')}</div>
+    <div class="grid g2" style="margin-top:13px">
+      <div class="card"><h3>Форматы задач</h3><div class="segment"><button class="seg active" onclick="filterTasks('all',this)">Все</button><button class="seg" onclick="filterTasks('Запуск',this)">Запуск</button><button class="seg" onclick="filterTasks('Будущее',this)">Будущее</button><button class="seg" onclick="filterTasks('Тело',this)">Тело</button><button class="seg" onclick="filterTasks('Закрытие',this)">Закрытие</button></div><div id="taskList" class="checklist">${taskList('all')}</div></div>
+      <div class="grid">
+        <div class="card green"><h3>Стоическая формула дня</h3><p class="taskText">${stoicFormula()}</p><div class="why">Контроль: действия. Не контроль: настроение, чужая оценка, идеальное состояние. Делай то, что зависит от тебя.</div></div>
+        <div class="card gold"><h3>Персональный план последней сборки</h3><textarea class="copybox" readonly>${esc(log().fields.personalPlan || log().fields.lastBuiltPlan || 'План ещё не собран. Перейди в “Авто” → “Собрать индивидуальный план”.')}</textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="go('automation')">Собрать план</button></div></div>
+        <div class="card"><h3>Быстрый ввод</h3><div class="grid g2">${input('weight','Вес','100.0')}${input('wellbeing','Самочувствие','7')}${input('energyMorning','Энергия утром','7')}${input('energyNight','Энергия ночью','5')}</div><label style="margin-top:12px"><span>Мысль дня</span><textarea onchange="setField('note',this.value)" placeholder="Одна мысль — уже контент.">${esc(field('note'))}</textarea></label></div>
+      </div>
+    </div>`;
+}
 
-        <div class="grid g2" style="margin-top:14px;">
-          <div class="card">
-            <h3>Данные</h3>
-            <div class="actions">
-              <button class="btn" onclick="exportData()">Экспорт JSON</button>
-              <button class="btn" onclick="document.getElementById('importFile').click()">Импорт JSON</button>
-              <button class="btn red" onclick="resetToday()">Сбросить сегодня</button>
-              <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-            </div>
-          </div>
-          <div class="card">
-            <h3>Старт цикла</h3>
-            <label><span>Дата старта</span><input type="date" value="${state.settings.startDate}" onchange="state.settings.startDate = this.value; save(); render()"></label>
-          </div>
-        </div>
-      `;
-    }
+function taskCheck(t){
+  const s=taskState(t.id),cur=currentTask().id===t.id,d=v7Duration(t);
+  return `<label class="check ${s.done?'done':''} ${cur?'current':''}"><input type="checkbox" ${s.done?'checked':''} onchange="markTask('${t.id}')"><span><b>${t.icon} ${t.title}</b><small><b>План: ${t.time}</b> · ⏱ ${d} мин · ${t.min}<br>${t.why}</small></span><span class="stamp ${s.done?'done':cur?'current':''}">${s.done?'✓ '+s.doneAt:cur?'СЕЙЧАС':'XP '+t.xp}<br><small>⏱ ${d}м</small></span></label>`;
+}
 
-    function ticktickText() {
-      return `MARKOV OS — TickTick
+/* refresh UI with v7 overrides */
+try { render(); } catch(e) { console.error("MARKOV OS v7 patch render error", e); }
+</script>
 
-Списки:
-00 TODAY / Сегодня
-01 PM / Senior Path
-02 BODY / Тело
-03 MONEY / Деньги
-04 CONTENT / Блог
-05 LANGUAGES / Языки
-06 RITUALS / Ритуалы
-07 RECOVERY / Возврат
-
-Повторы:
-11:00 Вода
-11:02 БАДЫ УТРО
-11:05 Молитва утром
-11:08 Дыхание утром
-11:50 План дня
-12:10 PM Deep Work
-13:25 English PM Speaking
-13:45 1 мысль в Obsidian
-Еда — Spanish / Chinese
-16:00–22:00 Работа / клиенты
-16:00–22:00 Силовая внутри окна
-22:30 Кардио + YouTube
-23:00 Мысль после кардио
-00:15 Творчество
-01:45 Вечерний разбор
-02:10 БАДЫ НОЧЬ
-02:12 Молитва на ночь
-02:15 Дыхание на ночь
-03:00 Сон`;
-    }
-
-    function obsidianText() {
-      const done = tasks.filter(t => isDone(t.id)).map(t => `- ${t.title} — ${taskState(t.id).doneAt}`).join("\n");
-      return `# MARKOV OS — ${getTodayKey()}
-
-## Состояние
-- Вес: ${field("weight")}
-- Самочувствие: ${field("wellbeing")}
-- Энергия утром: ${field("energyMorning")}
-- Энергия ночью: ${field("energyNight")}
-
-## Выполнено
-${done || "- Пока ничего не отмечено"}
-
-## PM
-- Артефакт: ${field("pmArtifact")}
-
-## Контент
-- Мысль дня: ${field("note")}
-
-## Review
-- Что сделал: ${log().review.done || ""}
-- Где слил: ${log().review.leak || ""}
-- Завтра главное: ${log().review.tomorrow || ""}
-
-Фраза: День сохранён. Завтра я продолжаю.`;
-    }
-
-    function openObsidian() {
-      const content = obsidianText();
-      copyText(content);
-      const vault = state.settings.obsidianVault ? `vault=${encodeURIComponent(state.settings.obsidianVault)}&` : "";
-      const file = encodeURIComponent(`MARKOV OS/${getTodayKey()}`);
-      const url = `obsidian://new?${vault}file=${file}&content=${encodeURIComponent(content)}`;
-      window.location.href = url;
-      toast("Текст скопирован. Если Obsidian установлен, откроется создание заметки.");
-    }
-
-    function openCurrentTask() {
-      openTask(currentTask().id);
-    }
-
-    function openTask(id) {
-      const t = tasks.find(x => x.id === id);
-      if (!t) return;
-      document.getElementById("taskModalTitle").textContent = t.title;
-      document.getElementById("taskModalSub").textContent = `План: ${t.time} · XP ${t.xp}`;
-      document.getElementById("taskModalAction").textContent = t.min;
-      document.getElementById("taskModalWhy").innerHTML = `<b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Приятная привязка:</b> ${t.bundle}`;
-      document.getElementById("taskDoneBtn").onclick = () => { markTask(t.id); closeTaskModal(); };
-      document.getElementById("taskModal").classList.add("active");
-    }
-
-    function closeTaskModal() {
-      document.getElementById("taskModal").classList.remove("active");
-    }
-
-    function startCurrentFocus() {
-      openCurrentTask();
-      setTimeout(() => startFocus(5), 120);
-    }
-
-    function startFocus(minutes) {
-      clearInterval(focusInterval);
-      focusLeft = minutes * 60;
-      document.getElementById("focusBox").classList.add("active");
-      updateFocus();
-      focusInterval = setInterval(() => {
-        focusLeft--;
-        updateFocus();
-        if (focusLeft <= 0) {
-          clearInterval(focusInterval);
-          toast("Фокус завершён. Отметь выполнение или продолжи ещё 5 минут.");
-        }
-      }, 1000);
-    }
-
-    function updateFocus() {
-      const m = String(Math.floor(focusLeft / 60)).padStart(2, "0");
-      const s = String(focusLeft % 60).padStart(2, "0");
-      const node = document.getElementById("focusTimer");
-      if (node) node.textContent = `${m}:${s}`;
-    }
-
-    function showRecovery() {
-      document.getElementById("recoveryModal").classList.add("active");
-      const reasons = [
-        ["Телефон", "PM 5 минут. Потом 10 минут телефона.", "Телефон должен быть наградой, а не хозяином."],
-        ["Усталость", "Minimum Mode: вода, дыхание, PM 10, English 5.", "Минимум сохраняет идентичность."],
-        ["Нет сил", "10 циклов дыхания и одна задача на 5 минут.", "Тело может быть уставшим, система всё равно работает."],
-        ["Перфекционизм", "Сделай черновик, не финал.", "Черновик создаёт движение."],
-        ["После клиентов", "Кардио оставить, творчество сократить.", "Не выжимать себя, но не уходить в скролл."],
-        ["Поздний сон", "Закрыть день: БАДЫ НОЧЬ, молитва, дыхание.", "Сон — множитель завтрашнего КПД."],
-        ["Быт", "1 бытовая задача под видео.", "Приятное прикрепляется к полезному."],
-        ["Не знаю", "Сделать текущее следующее действие.", "Не думать — выполнить ближайший шаг."]
-      ];
-      document.getElementById("recoveryGrid").innerHTML = reasons.map(r => `<button class="btn" onclick="setRecovery('${attr(r[1])}','${attr(r[2])}')">${r[0]}</button>`).join("");
-    }
-
-    function closeRecovery() {
-      document.getElementById("recoveryModal").classList.remove("active");
-    }
-
-    function setRecovery(action, why) {
-      document.getElementById("recoveryAction").textContent = action;
-      document.getElementById("recoveryWhy").innerHTML = "<b>Зачем:</b> " + why;
-    }
-
-    function completeRecovery() {
-      const t = currentTask();
-      if (!isDone(t.id)) markTask(t.id, true);
-      closeRecovery();
-      render();
-      toast("Ты не провалил день. Ты вернулся в систему.");
-    }
-
-    function openWhy() {
-      document.getElementById("whyModal").classList.add("active");
-      document.getElementById("whyGrid").innerHTML = tasks.map(t => `
-        <div class="card">
-          <span class="tag gold">${t.time}</span>
-          <h4>${t.title}</h4>
-          <p class="small"><b>Зачем:</b> ${t.why}</p>
-          <p class="muted small"><b>К чему приведёт:</b> ${t.result}</p>
-          <p class="muted small"><b>Приятная привязка:</b> ${t.bundle}</p>
-        </div>
-      `).join("");
-    }
-
-    function closeWhy() {
-      document.getElementById("whyModal").classList.remove("active");
-    }
-
-    function toggleTheme() {
-      state.settings.theme = state.settings.theme === "white" ? "black" : "white";
-      save();
-      render();
-      toast(state.settings.theme === "white" ? "Белая тема включена." : "Чёрная тема включена.");
-    }
-
-    function copyText(text) {
-      if (!text) return toast("Нечего копировать.");
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => toast("Скопировано."));
-      } else {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        ta.remove();
-        toast("Скопировано.");
-      }
-    }
-
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "markov-os-3-data.json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-
-    function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          state = deepMerge(defaults, JSON.parse(reader.result));
-          save();
-          render();
-          toast("Данные импортированы.");
-        } catch {
-          toast("Ошибка импорта JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function resetToday() {
-      if (!confirm("Сбросить сегодняшний день?")) return;
-      delete state.logs[getTodayKey()];
-      save();
-      render();
-      toast("Сегодня сброшено.");
-    }
-
-    function toast(msg) {
-      const node = document.getElementById("toast");
-      node.textContent = msg;
-      node.classList.add("active");
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => node.classList.remove("active"), 3300);
-    }
-
-    function esc(x) {
-      return String(x ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
-    }
-
-    function attr(x) {
-      return String(x ?? "").replace(/'/g, "\\'").replace(/"/g, "&quot;");
-    }
-
-    renderNav();
-    render();
-
-    setInterval(() => {
-      const clock = document.getElementById("liveClock");
-      if (clock) clock.textContent = timeNow();
-      if (activeSection === "today" || activeSection === "timeline") render();
-    }, 30000);
-  </script>
-</body>
-</html>
+</body></html>
