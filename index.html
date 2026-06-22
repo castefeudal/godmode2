@@ -1,144 +1,854 @@
 <!DOCTYPE html>
 <html lang="ru" data-theme="black">
 <head>
+  <!-- ==========================================================
+       MARKOV OS 9.0 — FULL READABLE PRODUCTION HTML
+       Single-file app: HTML + CSS + JS
+       Storage: localStorage
+       Dependencies: none
+       ========================================================== -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#050507" />
-  <title>MARKOV OS 8.0 — Personal Command</title>
+  <title>MARKOV OS 9.0 — Full Readable Production HTML</title>
   <style>
-    :root{
-      --bg:#050507;--bg2:#0b0b10;--panel:#121217;--panel2:#1b1b23;--panel3:rgba(255,255,255,.045);
-      --text:#f5f0e4;--muted:#b7afa1;--dim:#837b70;--gold:#d4af37;--gold2:#9f741c;
-      --green:#77ad7b;--red:#a74a4a;--blue:#7c9bd3;--violet:#a98ce4;
-      --line:rgba(255,255,255,.10);--goldLine:rgba(212,175,55,.34);
-      --shadow:0 24px 70px rgba(0,0,0,.36);--r24:24px;--r18:18px;--r14:14px;
-      --font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      --serif:Georgia,"Times New Roman",serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
-      --safe:env(safe-area-inset-bottom,0px);
-    }
-    html[data-theme="white"]{
-      --bg:#f5f0e6;--bg2:#e8dfd0;--panel:#fffdf8;--panel2:#f7efe4;--panel3:rgba(28,22,15,.055);
-      --text:#1f1b16;--muted:#665f55;--dim:#8b8277;--gold:#98701d;--gold2:#715111;
-      --green:#467e51;--red:#984040;--blue:#3c668f;--violet:#6b51a3;
-      --line:rgba(32,25,18,.13);--goldLine:rgba(152,112,29,.34);--shadow:0 18px 50px rgba(60,45,25,.12);
-    }
-    *{box-sizing:border-box}
-    html{background:var(--bg);scroll-behavior:smooth}
-    body{
-      margin:0;min-height:100vh;color:var(--text);font-family:var(--font);overflow-x:hidden;
-      background:
-        radial-gradient(circle at 8% -8%, color-mix(in srgb,var(--gold) 18%, transparent), transparent 28rem),
-        radial-gradient(circle at 94% 0%, color-mix(in srgb,var(--blue) 12%, transparent), transparent 32rem),
-        linear-gradient(145deg,var(--bg),var(--bg2));
-    }
-    button,input,textarea,select{font:inherit}
-    button{cursor:pointer}
-    input,textarea,select{
-      width:100%;border:1px solid var(--line);background:var(--panel3);color:var(--text);
-      border-radius:14px;padding:12px 13px;outline:none;
-    }
-    textarea{min-height:108px;resize:vertical;line-height:1.5}
-    input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 13%, transparent)}
-    .app{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:100vh}
-    .sidebar{
-      position:sticky;top:0;height:100vh;overflow-y:auto;padding:16px 13px;border-right:1px solid var(--line);
-      background:color-mix(in srgb,var(--bg) 88%, transparent);backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:13px;
-    }
-    .brand{
-      padding:18px;border:1px solid var(--goldLine);border-radius:var(--r24);
-      background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 12%, transparent),transparent),var(--panel);
-      box-shadow:var(--shadow);
-    }
-    .brand .k{color:var(--gold);font-size:10px;letter-spacing:.26em;text-transform:uppercase}
-    .brand h1{font-family:var(--serif);font-size:32px;line-height:.96;letter-spacing:-.055em;margin:8px 0 6px}
-    .brand p{margin:0;color:var(--muted);font-size:13px;line-height:1.48}
-    .nav{display:grid;gap:7px}
-    .nav button{
-      border:1px solid transparent;background:transparent;color:var(--muted);padding:10px 11px;border-radius:15px;
-      display:flex;align-items:center;gap:10px;text-align:left;transition:.18s ease;
-    }
-    .nav button:hover,.nav button.active{color:var(--text);background:var(--panel3);border-color:var(--goldLine)}
-    .nav .ico{font-size:20px;width:26px;text-align:center}
-    .nav small{color:var(--dim)}
-    .sideActions{margin-top:auto;display:grid;gap:8px}
-    .main{width:100%;max-width:1520px;margin:0 auto;padding:18px 22px 112px}
-    .topbar{
-      position:sticky;top:0;z-index:30;padding:7px 0 14px;
-      background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 78%,transparent);
-      backdrop-filter:blur(14px);
-    }
-    .topline{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
-    .title h2{margin:0;font-family:var(--serif);font-size:clamp(26px,3.3vw,48px);line-height:1;letter-spacing:-.05em}
-    .title p{margin:7px 0 0;color:var(--muted);font-size:14px;line-height:1.42;max-width:860px}
-    .section{display:none;animation:fade .18s ease both}.section.active{display:block}
-    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-    .grid{display:grid;gap:13px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
-    .card{
-      border:1px solid var(--line);border-radius:var(--r24);background:var(--panel);box-shadow:var(--shadow);
-      padding:17px;overflow:hidden;position:relative;
-    }
-    .card.gold{border-color:var(--goldLine);background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 11%,transparent),transparent),var(--panel)}
-    .card.green{border-color:color-mix(in srgb,var(--green) 42%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--green) 11%,transparent),transparent),var(--panel)}
-    .card.red{border-color:color-mix(in srgb,var(--red) 45%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--red) 12%,transparent),transparent),var(--panel)}
-    .card.blue{border-color:color-mix(in srgb,var(--blue) 40%,transparent);background:linear-gradient(145deg,color-mix(in srgb,var(--blue) 10%,transparent),transparent),var(--panel)}
-    .card:before{content:"";position:absolute;inset:-1px;pointer-events:none;background:radial-gradient(circle at 0 0,color-mix(in srgb,var(--gold) 8%,transparent),transparent 16rem);opacity:.7}
-    .card>*{position:relative}
-    h3{margin:0 0 10px;color:var(--gold);font-size:12px;text-transform:uppercase;letter-spacing:.15em}
-    h4{margin:0 0 7px}.serif{font-family:var(--serif)}.mono{font-family:var(--mono)}
-    .muted{color:var(--muted)}.dim{color:var(--dim)}.small{font-size:13px;line-height:1.48}.mini{font-size:12px;line-height:1.42}
-    .btn{
-      border:1px solid var(--goldLine);background:var(--panel3);color:var(--text);border-radius:14px;min-height:40px;padding:9px 12px;
-      display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;transition:.18s ease;
-    }
-    .btn:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--gold) 12%,transparent)}
-    .btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0b0b;border-color:transparent;font-weight:850}
-    html[data-theme=white] .btn.primary{color:#fff8e8}
-    .btn.ghost{border-color:var(--line);background:transparent;color:var(--muted)}
-    .btn.red{border-color:color-mix(in srgb,var(--red) 55%,transparent);background:color-mix(in srgb,var(--red) 12%,transparent)}
-    .btn.green{border-color:color-mix(in srgb,var(--green) 50%,transparent);background:color-mix(in srgb,var(--green) 12%,transparent)}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .tag,.pill{
-      display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;background:var(--panel3);color:var(--muted);padding:5px 8px;font-size:12px;
-    }
-    .tag.gold,.pill.gold{color:var(--gold);border-color:var(--goldLine);background:color-mix(in srgb,var(--gold) 8%,transparent)}
-    .tag.green{color:var(--green);border-color:color-mix(in srgb,var(--green) 42%,transparent);background:color-mix(in srgb,var(--green) 10%,transparent)}
-    .hero{display:grid;grid-template-columns:minmax(0,1.18fr) 360px;gap:13px}
-    .clockRow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;margin:10px 0 13px}
-    .clock{font-family:var(--mono);font-size:clamp(34px,4.4vw,60px);line-height:1;letter-spacing:-.065em;white-space:nowrap}
-    .dateLine{color:var(--muted);font-size:13px;line-height:1.48}
-    .taskTitle{margin:0 0 10px;font-family:var(--serif);font-size:clamp(24px,3vw,40px);line-height:1.04;letter-spacing:-.04em}
-    .taskText{margin:0 0 13px;color:var(--text);font-size:clamp(16px,1.4vw,19px);line-height:1.35}
-    .why{border-left:2px solid var(--gold);border-radius:0 14px 14px 0;background:color-mix(in srgb,var(--gold) 7%,transparent);padding:12px;color:var(--muted);line-height:1.48;font-size:14px}
-    .stat{border:1px solid var(--line);border-radius:15px;background:var(--panel3);padding:12px}
-    .stat .label{color:var(--gold);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-    .stat .value{margin-top:7px;font-family:var(--mono);font-size:21px}.stat .hint{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.35}
-    .ring{--p:0;width:152px;height:152px;border-radius:50%;margin:0 auto 12px;background:conic-gradient(var(--gold) calc(var(--p)*1%),color-mix(in srgb,var(--text) 10%,transparent) 0);position:relative;display:grid;place-items:center}
-    .ring:before{content:"";position:absolute;width:76%;height:76%;border-radius:50%;background:var(--panel2);border:1px solid var(--line)}
-    .ring span{position:relative;font-family:var(--mono);font-size:26px}
-    .bar{height:10px;border:1px solid var(--line);background:color-mix(in srgb,var(--text) 8%,transparent);border-radius:999px;overflow:hidden}
-    .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:999px}
-    .segment{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 13px}.seg{border:1px solid var(--line);border-radius:999px;background:var(--panel3);color:var(--muted);padding:8px 11px;font-size:13px}.seg.active{color:var(--text);border-color:var(--goldLine);background:color-mix(in srgb,var(--gold) 10%,transparent)}
-    .checklist{display:grid;gap:8px}.check{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:15px;background:var(--panel3);padding:10px;min-height:50px}.check.current{border-color:var(--goldLine);background:color-mix(in srgb,var(--gold) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)}.check.done{border-color:color-mix(in srgb,var(--green) 42%,transparent);background:color-mix(in srgb,var(--green) 9%,transparent)}.check input{width:19px;height:19px;accent-color:var(--gold)}.check small{display:block;color:var(--muted);margin-top:3px;line-height:1.35}.stamp{min-width:76px;text-align:right;color:var(--dim);font-family:var(--mono);font-size:11px}.stamp.done{color:var(--green);font-weight:850;background:color-mix(in srgb,var(--green) 12%,transparent);padding:5px 7px;border-radius:999px}.stamp.current{color:var(--gold);font-weight:850}
-    .timeblock{display:grid;grid-template-columns:105px minmax(0,1fr) 220px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:12px}.timeblock.current{border-color:var(--goldLine);background:color-mix(in srgb,var(--gold) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)}.timeblock.done{opacity:.78}.time{font-family:var(--mono);color:var(--gold);font-size:13px}
-    label{display:grid;gap:7px;color:var(--muted);font-size:13px}label span{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.14em}
-    table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--line);padding:10px}th{color:var(--gold);font-size:10px;text-transform:uppercase;letter-spacing:.13em}td{color:var(--muted)}
-    .copybox,#personalPlan,#ifThenOut,#projectionOut,#obsidianBox,#contentOut{background:var(--panel2)!important;color:var(--text)!important;border:1px solid var(--goldLine)!important;font-family:var(--mono);font-size:12px;line-height:1.55;min-height:160px;white-space:pre-wrap}
-    .focusBox{display:none;border:1px solid var(--goldLine);background:color-mix(in srgb,var(--gold) 7%,transparent);border-radius:18px;padding:13px;margin-top:12px}.focusBox.active{display:block}.focusTime{font-family:var(--mono);font-size:30px;color:var(--gold)}
-    .modal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.68)}html[data-theme=white] .modal{background:rgba(0,0,0,.38)}.modal.active{display:flex}.modalCard{width:min(980px,100%);max-height:88vh;overflow:auto;border:1px solid var(--goldLine);border-radius:24px;background:var(--panel2);box-shadow:var(--shadow);padding:18px}
-    .toast{position:fixed;right:20px;bottom:20px;z-index:120;display:none;max-width:min(520px,calc(100vw - 40px));border:1px solid var(--goldLine);border-radius:15px;background:var(--panel2);box-shadow:var(--shadow);padding:13px 14px;color:var(--text);line-height:1.4}.toast.active{display:block;animation:toast .18s ease both}@keyframes toast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-    .mobilebar,.mobileFab{display:none}
-    @media(max-width:1150px){
-      .app{grid-template-columns:1fr}.sidebar{display:none}.main{padding:12px 11px calc(98px + var(--safe))}.topline,.hero,.g2,.g3,.g4{grid-template-columns:1fr}.timeblock{grid-template-columns:1fr}.timeblock .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.clockRow{grid-template-columns:1fr;gap:7px}.card{padding:14px;border-radius:20px}.title h2{font-size:30px}.title p{font-size:13px}.taskTitle{font-size:28px}.topbar .actions{display:none}.check{grid-template-columns:auto minmax(0,1fr)}.check .stamp{grid-column:2;text-align:left;min-width:0;width:max-content}
-      .mobileFab{display:flex;position:fixed;right:14px;bottom:calc(76px + var(--safe));z-index:78;width:58px;height:58px;border-radius:50%;border:1px solid var(--goldLine);background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0b0b;font-weight:900;box-shadow:var(--shadow);align-items:center;justify-content:center;font-size:22px}
-      .mobilebar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px 8px calc(8px + var(--safe));border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(18px)}
-      .mobilebar button{border:0;background:transparent;color:var(--muted);border-radius:12px;padding:7px 4px;font-size:10px;line-height:1.1}.mobilebar button .mi{display:block;font-size:18px;margin-bottom:3px}.mobilebar button.active{color:var(--gold);background:color-mix(in srgb,var(--gold) 9%,transparent)}
-    }
-  </style>
+/* ==========================================================
+   MARKOV OS 9.0 — CSS SYSTEM
+   Sections: tokens, layout, cards, mobile, modals
+   ========================================================== */
+:root{
+
+  --bg:#050507;
+  --bg2:#0b0b10;
+  --panel:#121217;
+  --panel2:#1b1b23;
+  --panel3:rgba(255,255,255,.045);
+
+  --text:#f5f0e4;
+  --muted:#b7afa1;
+  --dim:#837b70;
+  --gold:#d4af37;
+  --gold2:#9f741c;
+
+  --green:#77ad7b;
+  --red:#a74a4a;
+  --blue:#7c9bd3;
+  --violet:#a98ce4;
+
+  --line:rgba(255,255,255,.10);
+  --goldLine:rgba(212,175,55,.34);
+
+  --shadow:0 24px 70px rgba(0,0,0,.36);
+  --r24:24px;
+  --r18:18px;
+  --r14:14px;
+
+  --font:Inter,Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+  --serif:Georgia,"Times New Roman",serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+
+  --safe:env(safe-area-inset-bottom,0px);
+
+}
+html[data-theme="white"]{
+
+  --bg:#f5f0e6;
+  --bg2:#e8dfd0;
+  --panel:#fffdf8;
+  --panel2:#f7efe4;
+  --panel3:rgba(28,22,15,.055);
+
+  --text:#1f1b16;
+  --muted:#665f55;
+  --dim:#8b8277;
+  --gold:#98701d;
+  --gold2:#715111;
+
+  --green:#467e51;
+  --red:#984040;
+  --blue:#3c668f;
+  --violet:#6b51a3;
+
+  --line:rgba(32,25,18,.13);
+  --goldLine:rgba(152,112,29,.34);
+  --shadow:0 18px 50px rgba(60,45,25,.12);
+
+}
+*{
+  box-sizing:border-box
+}
+html{
+  background:var(--bg);
+  scroll-behavior:smooth
+}
+body{
+
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  font-family:var(--font);
+  overflow-x:hidden;
+
+  background:
+  radial-gradient(circle at 8% -8%, color-mix(in srgb,var(--gold) 18%, transparent), transparent 28rem),
+  radial-gradient(circle at 94% 0%, color-mix(in srgb,var(--blue) 12%, transparent), transparent 32rem),
+  linear-gradient(145deg,var(--bg),var(--bg2));
+
+}
+button,input,textarea,select{
+  font:inherit
+}
+button{
+  cursor:pointer
+}
+input,textarea,select{
+
+  width:100%;
+  border:1px solid var(--line);
+  background:var(--panel3);
+  color:var(--text);
+
+  border-radius:14px;
+  padding:12px 13px;
+  outline:none;
+
+}
+textarea{
+  min-height:108px;
+  resize:vertical;
+  line-height:1.5
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 13%, transparent)
+}
+.app{
+  display:grid;
+  grid-template-columns:292px minmax(0,1fr);
+  min-height:100vh
+}
+.sidebar{
+
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  padding:16px 13px;
+  border-right:1px solid var(--line);
+
+  background:color-mix(in srgb,var(--bg) 88%, transparent);
+  backdrop-filter:blur(20px);
+  display:flex;
+  flex-direction:column;
+  gap:13px;
+
+}
+.brand{
+
+  padding:18px;
+  border:1px solid var(--goldLine);
+  border-radius:var(--r24);
+
+  background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 12%, transparent),transparent),var(--panel);
+
+  box-shadow:var(--shadow);
+
+}
+.brand .k{
+  color:var(--gold);
+  font-size:10px;
+  letter-spacing:.26em;
+  text-transform:uppercase
+}
+.brand h1{
+  font-family:var(--serif);
+  font-size:32px;
+  line-height:.96;
+  letter-spacing:-.055em;
+  margin:8px 0 6px
+}
+.brand p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.48
+}
+.nav{
+  display:grid;
+  gap:7px
+}
+.nav button{
+
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--muted);
+  padding:10px 11px;
+  border-radius:15px;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  transition:.18s ease;
+
+}
+.nav button:hover,.nav button.active{
+  color:var(--text);
+  background:var(--panel3);
+  border-color:var(--goldLine)
+}
+.nav .ico{
+  font-size:20px;
+  width:26px;
+  text-align:center
+}
+.nav small{
+  color:var(--dim)
+}
+.sideActions{
+  margin-top:auto;
+  display:grid;
+  gap:8px
+}
+.main{
+  width:100%;
+  max-width:1520px;
+  margin:0 auto;
+  padding:18px 22px 112px
+}
+.topbar{
+
+  position:sticky;
+  top:0;
+  z-index:30;
+  padding:7px 0 14px;
+
+  background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 78%,transparent);
+
+  backdrop-filter:blur(14px);
+
+}
+.topline{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center
+}
+.title h2{
+  margin:0;
+  font-family:var(--serif);
+  font-size:clamp(26px,3.3vw,48px);
+  line-height:1;
+  letter-spacing:-.05em
+}
+.title p{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.42;
+  max-width:860px
+}
+.section{
+  display:none;
+  animation:fade .18s ease both
+}
+.section.active{
+  display:block
+}
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(8px)
+  }
+  to{
+    opacity:1;
+    transform:none
+  }
+
+}
+.grid{
+  display:grid;
+  gap:13px
+}
+.g2{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.g3{
+  grid-template-columns:repeat(3,minmax(0,1fr))
+}
+.g4{
+  grid-template-columns:repeat(4,minmax(0,1fr))
+}
+.card{
+
+  border:1px solid var(--line);
+  border-radius:var(--r24);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+
+  padding:17px;
+  overflow:hidden;
+  position:relative;
+
+}
+.card.gold{
+  border-color:var(--goldLine);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--gold) 11%,transparent),transparent),var(--panel)
+}
+.card.green{
+  border-color:color-mix(in srgb,var(--green) 42%,transparent);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--green) 11%,transparent),transparent),var(--panel)
+}
+.card.red{
+  border-color:color-mix(in srgb,var(--red) 45%,transparent);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--red) 12%,transparent),transparent),var(--panel)
+}
+.card.blue{
+  border-color:color-mix(in srgb,var(--blue) 40%,transparent);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--blue) 10%,transparent),transparent),var(--panel)
+}
+.card:before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:radial-gradient(circle at 0 0,color-mix(in srgb,var(--gold) 8%,transparent),transparent 16rem);
+  opacity:.7
+}
+.card>*{
+  position:relative
+}
+h3{
+  margin:0 0 10px;
+  color:var(--gold);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.15em
+}
+h4{
+  margin:0 0 7px
+}
+.serif{
+  font-family:var(--serif)
+}
+.mono{
+  font-family:var(--mono)
+}
+.muted{
+  color:var(--muted)
+}
+.dim{
+  color:var(--dim)
+}
+.small{
+  font-size:13px;
+  line-height:1.48
+}
+.mini{
+  font-size:12px;
+  line-height:1.42
+}
+.btn{
+
+  border:1px solid var(--goldLine);
+  background:var(--panel3);
+  color:var(--text);
+  border-radius:14px;
+  min-height:40px;
+  padding:9px 12px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  text-align:center;
+  transition:.18s ease;
+
+}
+.btn:hover{
+  transform:translateY(-1px);
+  background:color-mix(in srgb,var(--gold) 12%,transparent)
+}
+.btn.primary{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#0b0b0b;
+  border-color:transparent;
+  font-weight:850
+}
+html[data-theme=white] .btn.primary{
+  color:#fff8e8
+}
+.btn.ghost{
+  border-color:var(--line);
+  background:transparent;
+  color:var(--muted)
+}
+.btn.red{
+  border-color:color-mix(in srgb,var(--red) 55%,transparent);
+  background:color-mix(in srgb,var(--red) 12%,transparent)
+}
+.btn.green{
+  border-color:color-mix(in srgb,var(--green) 50%,transparent);
+  background:color-mix(in srgb,var(--green) 12%,transparent)
+}
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+.tag,.pill{
+
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--panel3);
+  color:var(--muted);
+  padding:5px 8px;
+  font-size:12px;
+
+}
+.tag.gold,.pill.gold{
+  color:var(--gold);
+  border-color:var(--goldLine);
+  background:color-mix(in srgb,var(--gold) 8%,transparent)
+}
+.tag.green{
+  color:var(--green);
+  border-color:color-mix(in srgb,var(--green) 42%,transparent);
+  background:color-mix(in srgb,var(--green) 10%,transparent)
+}
+.hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.18fr) 360px;
+  gap:13px
+}
+.clockRow{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:14px;
+  align-items:center;
+  margin:10px 0 13px
+}
+.clock{
+  font-family:var(--mono);
+  font-size:clamp(34px,4.4vw,60px);
+  line-height:1;
+  letter-spacing:-.065em;
+  white-space:nowrap
+}
+.dateLine{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.48
+}
+.taskTitle{
+  margin:0 0 10px;
+  font-family:var(--serif);
+  font-size:clamp(24px,3vw,40px);
+  line-height:1.04;
+  letter-spacing:-.04em
+}
+.taskText{
+  margin:0 0 13px;
+  color:var(--text);
+  font-size:clamp(16px,1.4vw,19px);
+  line-height:1.35
+}
+.why{
+  border-left:2px solid var(--gold);
+  border-radius:0 14px 14px 0;
+  background:color-mix(in srgb,var(--gold) 7%,transparent);
+  padding:12px;
+  color:var(--muted);
+  line-height:1.48;
+  font-size:14px
+}
+.stat{
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--panel3);
+  padding:12px
+}
+.stat .label{
+  color:var(--gold);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase
+}
+.stat .value{
+  margin-top:7px;
+  font-family:var(--mono);
+  font-size:21px
+}
+.stat .hint{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35
+}
+.ring{
+  --p:0;
+  width:152px;
+  height:152px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  background:conic-gradient(var(--gold) calc(var(--p)*1%),color-mix(in srgb,var(--text) 10%,transparent) 0);
+  position:relative;
+  display:grid;
+  place-items:center
+}
+.ring:before{
+  content:"";
+  position:absolute;
+  width:76%;
+  height:76%;
+  border-radius:50%;
+  background:var(--panel2);
+  border:1px solid var(--line)
+}
+.ring span{
+  position:relative;
+  font-family:var(--mono);
+  font-size:26px
+}
+.bar{
+  height:10px;
+  border:1px solid var(--line);
+  background:color-mix(in srgb,var(--text) 8%,transparent);
+  border-radius:999px;
+  overflow:hidden
+}
+.bar i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,var(--gold2),var(--gold));
+  border-radius:999px
+}
+.segment{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 13px
+}
+.seg{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--panel3);
+  color:var(--muted);
+  padding:8px 11px;
+  font-size:13px
+}
+.seg.active{
+  color:var(--text);
+  border-color:var(--goldLine);
+  background:color-mix(in srgb,var(--gold) 10%,transparent)
+}
+.checklist{
+  display:grid;
+  gap:8px
+}
+.check{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--panel3);
+  padding:10px;
+  min-height:50px
+}
+.check.current{
+  border-color:var(--goldLine);
+  background:color-mix(in srgb,var(--gold) 8%,transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)
+}
+.check.done{
+  border-color:color-mix(in srgb,var(--green) 42%,transparent);
+  background:color-mix(in srgb,var(--green) 9%,transparent)
+}
+.check input{
+  width:19px;
+  height:19px;
+  accent-color:var(--gold)
+}
+.check small{
+  display:block;
+  color:var(--muted);
+  margin-top:3px;
+  line-height:1.35
+}
+.stamp{
+  min-width:76px;
+  text-align:right;
+  color:var(--dim);
+  font-family:var(--mono);
+  font-size:11px
+}
+.stamp.done{
+  color:var(--green);
+  font-weight:850;
+  background:color-mix(in srgb,var(--green) 12%,transparent);
+  padding:5px 7px;
+  border-radius:999px
+}
+.stamp.current{
+  color:var(--gold);
+  font-weight:850
+}
+.timeblock{
+  display:grid;
+  grid-template-columns:105px minmax(0,1fr) 220px;
+  gap:12px;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--panel);
+  padding:12px
+}
+.timeblock.current{
+  border-color:var(--goldLine);
+  background:color-mix(in srgb,var(--gold) 8%,transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 7%,transparent)
+}
+.timeblock.done{
+  opacity:.78
+}
+.time{
+  font-family:var(--mono);
+  color:var(--gold);
+  font-size:13px
+}
+label{
+  display:grid;
+  gap:7px;
+  color:var(--muted);
+  font-size:13px
+}
+label span{
+  color:var(--gold);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.14em
+}
+table{
+  width:100%;
+  border-collapse:collapse
+}
+th,td{
+  text-align:left;
+  vertical-align:top;
+  border-bottom:1px solid var(--line);
+  padding:10px
+}
+th{
+  color:var(--gold);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.13em
+}
+td{
+  color:var(--muted)
+}
+.copybox,#personalPlan,#ifThenOut,#projectionOut,#obsidianBox,#contentOut{
+  background:var(--panel2)!important;
+  color:var(--text)!important;
+  border:1px solid var(--goldLine)!important;
+  font-family:var(--mono);
+  font-size:12px;
+  line-height:1.55;
+  min-height:160px;
+  white-space:pre-wrap
+}
+.focusBox{
+  display:none;
+  border:1px solid var(--goldLine);
+  background:color-mix(in srgb,var(--gold) 7%,transparent);
+  border-radius:18px;
+  padding:13px;
+  margin-top:12px
+}
+.focusBox.active{
+  display:block
+}
+.focusTime{
+  font-family:var(--mono);
+  font-size:30px;
+  color:var(--gold)
+}
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:90;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(0,0,0,.68)
+}
+html[data-theme=white] .modal{
+  background:rgba(0,0,0,.38)
+}
+.modal.active{
+  display:flex
+}
+.modalCard{
+  width:min(980px,100%);
+  max-height:88vh;
+  overflow:auto;
+  border:1px solid var(--goldLine);
+  border-radius:24px;
+  background:var(--panel2);
+  box-shadow:var(--shadow);
+  padding:18px
+}
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:120;
+  display:none;
+  max-width:min(520px,calc(100vw - 40px));
+  border:1px solid var(--goldLine);
+  border-radius:15px;
+  background:var(--panel2);
+  box-shadow:var(--shadow);
+  padding:13px 14px;
+  color:var(--text);
+  line-height:1.4
+}
+.toast.active{
+  display:block;
+  animation:toast .18s ease both
+}
+@keyframes toast{
+  from{
+    opacity:0;
+    transform:translateY(8px)
+  }
+  to{
+    opacity:1;
+    transform:none
+  }
+
+}
+.mobilebar,.mobileFab{
+  display:none
+}
+@media(max-width:1150px){
+
+  .app{
+    grid-template-columns:1fr
+  }
+  .sidebar{
+    display:none
+  }
+  .main{
+    padding:12px 11px calc(98px + var(--safe))
+  }
+  .topline,.hero,.g2,.g3,.g4{
+    grid-template-columns:1fr
+  }
+  .timeblock{
+    grid-template-columns:1fr
+  }
+  .timeblock .actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .clockRow{
+    grid-template-columns:1fr;
+    gap:7px
+  }
+  .card{
+    padding:14px;
+    border-radius:20px
+  }
+  .title h2{
+    font-size:30px
+  }
+  .title p{
+    font-size:13px
+  }
+  .taskTitle{
+    font-size:28px
+  }
+  .topbar .actions{
+    display:none
+  }
+  .check{
+    grid-template-columns:auto minmax(0,1fr)
+  }
+  .check .stamp{
+    grid-column:2;
+    text-align:left;
+    min-width:0;
+    width:max-content
+  }
+
+  .mobileFab{
+    display:flex;
+    position:fixed;
+    right:14px;
+    bottom:calc(76px + var(--safe));
+    z-index:78;
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    border:1px solid var(--goldLine);
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:#0b0b0b;
+    font-weight:900;
+    box-shadow:var(--shadow);
+    align-items:center;
+    justify-content:center;
+    font-size:22px
+  }
+
+  .mobilebar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:70;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:4px;
+    padding:8px 8px calc(8px + var(--safe));
+    border-top:1px solid var(--line);
+    background:color-mix(in srgb,var(--bg) 92%,transparent);
+    backdrop-filter:blur(18px)
+  }
+
+  .mobilebar button{
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    border-radius:12px;
+    padding:7px 4px;
+    font-size:10px;
+    line-height:1.1
+  }
+  .mobilebar button .mi{
+    display:block;
+    font-size:18px;
+    margin-bottom:3px
+  }
+  .mobilebar button.active{
+    color:var(--gold);
+    background:color-mix(in srgb,var(--gold) 9%,transparent)
+  }
+
+}
+</style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="brand"><div class="k">MARKOV OS 8.0</div><h1>Personal Command</h1><p>Новый стабильный дизайн: мобильный штаб, протоколы слива, персональный план, прогноз результата и рабочие кнопки.</p></div>
+    <div class="brand"><div class="k">MARKOV OS 9.0</div><h1>Full Readable Production</h1><p>Новый стабильный дизайн: мобильный штаб, протоколы слива, персональный план, прогноз результата и рабочие кнопки.</p></div>
     <nav class="nav" id="nav"></nav>
     <div class="sideActions">
       <button class="btn primary" onclick="openCurrent()">⚡ Текущее действие</button>
@@ -168,124 +878,698 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ==========================================================
+   MARKOV OS 9.0 — JAVASCRIPT SYSTEM
+   Sections: config, state, render, actions, exports
+   ========================================================== */
 const KEY="MARKOV_OS_8_PERSONAL_COMMAND";
 const nav=[
- ["today","🏰","Сегодня","главный экран"],["plan","🧩","План","персональная сборка"],["shield","🛡️","Щит","протоколы слива"],["timeline","⏱️","Таймлайн","по времени"],["future","🚀","Прогноз","результат"],["pm","🧠","PM","карьера"],["body","🏋️","Тело","сушка"],["content","✍️","Контент","публикации"],["archive","📜","Архив","дни и экспорт"]
+["today","🏰","Сегодня","главный экран"],["plan","🧩","План","персональная сборка"],["shield","🛡️","Щит","протоколы слива"],["timeline","⏱️","Таймлайн","по времени"],["future","🚀","Прогноз","результат"],["pm","🧠","PM","карьера"],["body","🏋️","Тело","сушка"],["content","✍️","Контент","публикации"],["archive","📜","Архив","дни и экспорт"]
 ];
 const tasks=[
-{id:"water",icon:"💧",group:"Запуск",time:"11:00",dur:2,title:"Вода",xp:5,min:"Выпить воду. Запустить тело.",why:"День начинается с управляемого действия, а не с телефона.",result:"Ты входишь в режим человека-системы.",bundle:"После подъёма. Спокойный трек на 2 минуты."},
-{id:"suppMorning",icon:"🧬",group:"Запуск",time:"11:02",dur:2,title:"БАДЫ УТРО",xp:5,min:"Принять свой утренний стек.",why:"Это слот запуска. Состав ты знаешь сам.",result:"Меньше забывания, больше автоматизма.",bundle:"Вода открывает слот добавок."},
-{id:"prayerMorning",icon:"🙏",group:"Запуск",time:"11:05",dur:2,title:"Молитва утром",xp:10,min:"60–90 секунд молитвы.",why:"Тебе важны глубина, смысл и внутренняя опора.",result:"День начинается с миссии.",bundle:"После БАДов, без телефона."},
-{id:"breathMorning",icon:"🌬️",group:"Запуск",time:"11:08",dur:4,title:"Дыхание утром",xp:10,min:"3–4 минуты или 10 циклов.",why:"Снижает шум и облегчает вход в PM.",result:"Меньше импульса уйти в телефон.",bundle:"После молитвы, под тихую музыку."},
-{id:"planDay",icon:"🧭",group:"Фокус",time:"11:50",dur:10,title:"План дня",xp:10,min:"Выбрать 3 главные миссии.",why:"Без плана день забирают клиенты, быт и телефон.",result:"Ты видишь маршрут дня.",bundle:"После еды. Галочка запускает день."},
-{id:"pm",icon:"🧠",group:"Будущее",time:"12:10",dur:75,title:"PM Deep Work",xp:50,min:"10 минут минимум. 60–75 минут норма.",why:"Это мост к Middle+/Senior-style PM.",result:"Кейсы, портфолио, речь PM, собеседования.",bundle:"Кофе/кола зеро + чистый стол + таймер."},
-{id:"english",icon:"🗣️",group:"Будущее",time:"13:25",dur:20,title:"English PM Speaking",xp:30,min:"5 фраз вслух.",why:"Нужен рабочий голос на IT PM-созвоне.",result:"Ты говоришь про scope, risks, blockers, deadlines.",bundle:"Говорить стоя или ходя."},
-{id:"contentIdea",icon:"✍️",group:"Контент",time:"13:45",dur:10,title:"1 мысль в Obsidian",xp:15,min:"Записать одну мысль.",why:"Контент начинается не с камеры, а с мысли.",result:"60 мыслей за 2 месяца = сырьё для блога.",bundle:"После English или после кардио."},
-{id:"languageMeal",icon:"🌍",group:"Языки",time:"за едой",dur:12,title:"Spanish / Chinese",xp:10,min:"10–15 минут за едой.",why:"Ты заменяешь мусорные ролики когнитивной прокачкой.",result:"Языки растут без отдельного тяжёлого блока.",bundle:"Еда открывает язык."},
-{id:"work",icon:"💰",group:"Деньги",time:"16:00–22:00",dur:360,title:"Работа / деньги",xp:30,min:"Выполнить рабочий блок.",why:"Деньги — один из главных приоритетов.",result:"Финансовая база и ресурс.",bundle:"Это блок монетизации личности."},
-{id:"strength",icon:"🏋️",group:"Тело",time:"16:00–22:00",dur:60,title:"Силовая тренировка",xp:30,min:"Силовая внутри окна работы.",why:"Тело — часть бренда, силы и уверенности.",result:"Сушка без потери мышц и плотности.",bundle:"Тренировка встроена между клиентами."},
-{id:"cardio",icon:"📺",group:"Тело",time:"22:30",dur:25,title:"Кардио + YouTube",xp:20,min:"25 минут кардио.",why:"Приятное тянет полезное. Эта привычка уже работает.",result:"Сушка, сердце, расход энергии, стабильность.",bundle:"YouTube только на кардио/прогулке/быту."},
-{id:"postCardioNote",icon:"💡",group:"Контент",time:"23:00",dur:5,title:"Мысль после кардио",xp:10,min:"1 голосовая или 1 строка.",why:"После кардио часто появляются чистые мысли.",result:"Контент-пул растёт без насилия.",bundle:"Душ открывает фиксацию мысли."},
-{id:"creative",icon:"🎧",group:"Творчество",time:"00:15",dur:60,title:"Творчество",xp:25,min:"15 минут книги, блога или SUNO.",why:"Творчество собирает личный бренд.",result:"Каста, книга, музыка и сценарии получают топливо.",bundle:"Награда после базы."},
-{id:"review",icon:"📜",group:"Закрытие",time:"01:45",dur:10,title:"Вечерний разбор",xp:20,min:"3 строки: сделал / слил / завтра.",why:"Без review опыт не превращается в рост.",result:"Ты видишь прогресс и слабые места.",bundle:"Низкий свет, чай, тишина."},
-{id:"suppNight",icon:"🌙",group:"Закрытие",time:"02:10",dur:2,title:"БАДЫ НОЧЬ",xp:5,min:"Принять свой ночной стек.",why:"Это слот выключения системы.",result:"Меньше забывания, лучше закрытие дня.",bundle:"После review."},
-{id:"prayerNight",icon:"🙏",group:"Закрытие",time:"02:12",dur:2,title:"Молитва на ночь",xp:10,min:"60 секунд молитвы.",why:"Закрывает день без чувства вины.",result:"Психика получает точку завершения.",bundle:"После ночных БАДов."},
-{id:"breathNight",icon:"🌬️",group:"Закрытие",time:"02:15",dur:4,title:"Дыхание на ночь",xp:10,min:"3–4 минуты.",why:"Снимает возбуждение после дня.",result:"Выше шанс лечь до 03:00.",bundle:"Лёжа, без героизма."},
-{id:"sleep",icon:"🛌",group:"Закрытие",time:"03:00",dur:15,title:"Сон до 03:00",xp:25,min:"Закрыть экраны и лечь.",why:"Сон — главный множитель PM, тела и восстановления.",result:"Завтра выше КПД.",bundle:"Финальный сейв персонажа."}
+{
+  id:"water",icon:"💧",group:"Запуск",time:"11:00",dur:2,title:"Вода",xp:5,min:"Выпить воду. Запустить тело.",why:"День начинается с управляемого действия, а не с телефона.",result:"Ты входишь в режим человека-системы.",bundle:"После подъёма. Спокойный трек на 2 минуты."
+}
+,
+{
+  id:"suppMorning",icon:"🧬",group:"Запуск",time:"11:02",dur:2,title:"БАДЫ УТРО",xp:5,min:"Принять свой утренний стек.",why:"Это слот запуска. Состав ты знаешь сам.",result:"Меньше забывания, больше автоматизма.",bundle:"Вода открывает слот добавок."
+}
+,
+{
+  id:"prayerMorning",icon:"🙏",group:"Запуск",time:"11:05",dur:2,title:"Молитва утром",xp:10,min:"60–90 секунд молитвы.",why:"Тебе важны глубина, смысл и внутренняя опора.",result:"День начинается с миссии.",bundle:"После БАДов, без телефона."
+}
+,
+{
+  id:"breathMorning",icon:"🌬️",group:"Запуск",time:"11:08",dur:4,title:"Дыхание утром",xp:10,min:"3–4 минуты или 10 циклов.",why:"Снижает шум и облегчает вход в PM.",result:"Меньше импульса уйти в телефон.",bundle:"После молитвы, под тихую музыку."
+}
+,
+{
+  id:"planDay",icon:"🧭",group:"Фокус",time:"11:50",dur:10,title:"План дня",xp:10,min:"Выбрать 3 главные миссии.",why:"Без плана день забирают клиенты, быт и телефон.",result:"Ты видишь маршрут дня.",bundle:"После еды. Галочка запускает день."
+}
+,
+{
+  id:"pm",icon:"🧠",group:"Будущее",time:"12:10",dur:75,title:"PM Deep Work",xp:50,min:"10 минут минимум. 60–75 минут норма.",why:"Это мост к Middle+/Senior-style PM.",result:"Кейсы, портфолио, речь PM, собеседования.",bundle:"Кофе/кола зеро + чистый стол + таймер."
+}
+,
+{
+  id:"english",icon:"🗣️",group:"Будущее",time:"13:25",dur:20,title:"English PM Speaking",xp:30,min:"5 фраз вслух.",why:"Нужен рабочий голос на IT PM-созвоне.",result:"Ты говоришь про scope, risks, blockers, deadlines.",bundle:"Говорить стоя или ходя."
+}
+,
+{
+  id:"contentIdea",icon:"✍️",group:"Контент",time:"13:45",dur:10,title:"1 мысль в Obsidian",xp:15,min:"Записать одну мысль.",why:"Контент начинается не с камеры, а с мысли.",result:"60 мыслей за 2 месяца = сырьё для блога.",bundle:"После English или после кардио."
+}
+,
+{
+  id:"languageMeal",icon:"🌍",group:"Языки",time:"за едой",dur:12,title:"Spanish / Chinese",xp:10,min:"10–15 минут за едой.",why:"Ты заменяешь мусорные ролики когнитивной прокачкой.",result:"Языки растут без отдельного тяжёлого блока.",bundle:"Еда открывает язык."
+}
+,
+{
+  id:"work",icon:"💰",group:"Деньги",time:"16:00–22:00",dur:360,title:"Работа / деньги",xp:30,min:"Выполнить рабочий блок.",why:"Деньги — один из главных приоритетов.",result:"Финансовая база и ресурс.",bundle:"Это блок монетизации личности."
+}
+,
+{
+  id:"strength",icon:"🏋️",group:"Тело",time:"16:00–22:00",dur:60,title:"Силовая тренировка",xp:30,min:"Силовая внутри окна работы.",why:"Тело — часть бренда, силы и уверенности.",result:"Сушка без потери мышц и плотности.",bundle:"Тренировка встроена между клиентами."
+}
+,
+{
+  id:"cardio",icon:"📺",group:"Тело",time:"22:30",dur:25,title:"Кардио + YouTube",xp:20,min:"25 минут кардио.",why:"Приятное тянет полезное. Эта привычка уже работает.",result:"Сушка, сердце, расход энергии, стабильность.",bundle:"YouTube только на кардио/прогулке/быту."
+}
+,
+{
+  id:"postCardioNote",icon:"💡",group:"Контент",time:"23:00",dur:5,title:"Мысль после кардио",xp:10,min:"1 голосовая или 1 строка.",why:"После кардио часто появляются чистые мысли.",result:"Контент-пул растёт без насилия.",bundle:"Душ открывает фиксацию мысли."
+}
+,
+{
+  id:"creative",icon:"🎧",group:"Творчество",time:"00:15",dur:60,title:"Творчество",xp:25,min:"15 минут книги, блога или SUNO.",why:"Творчество собирает личный бренд.",result:"Каста, книга, музыка и сценарии получают топливо.",bundle:"Награда после базы."
+}
+,
+{
+  id:"review",icon:"📜",group:"Закрытие",time:"01:45",dur:10,title:"Вечерний разбор",xp:20,min:"3 строки: сделал / слил / завтра.",why:"Без review опыт не превращается в рост.",result:"Ты видишь прогресс и слабые места.",bundle:"Низкий свет, чай, тишина."
+}
+,
+{
+  id:"suppNight",icon:"🌙",group:"Закрытие",time:"02:10",dur:2,title:"БАДЫ НОЧЬ",xp:5,min:"Принять свой ночной стек.",why:"Это слот выключения системы.",result:"Меньше забывания, лучше закрытие дня.",bundle:"После review."
+}
+,
+{
+  id:"prayerNight",icon:"🙏",group:"Закрытие",time:"02:12",dur:2,title:"Молитва на ночь",xp:10,min:"60 секунд молитвы.",why:"Закрывает день без чувства вины.",result:"Психика получает точку завершения.",bundle:"После ночных БАДов."
+}
+,
+{
+  id:"breathNight",icon:"🌬️",group:"Закрытие",time:"02:15",dur:4,title:"Дыхание на ночь",xp:10,min:"3–4 минуты.",why:"Снимает возбуждение после дня.",result:"Выше шанс лечь до 03:00.",bundle:"Лёжа, без героизма."
+}
+,
+{
+  id:"sleep",icon:"🛌",group:"Закрытие",time:"03:00",dur:15,title:"Сон до 03:00",xp:25,min:"Закрыть экраны и лечь.",why:"Сон — главный множитель PM, тела и восстановления.",result:"Завтра выше КПД.",bundle:"Финальный сейв персонажа."
+}
 ];
 const blocks=[["11:00","Запуск",["water","suppMorning","prayerMorning","breathMorning"]],["11:30","Еда + язык",["languageMeal"]],["11:50","План",["planDay"]],["12:10","PM Deep Work",["pm"]],["13:25","English",["english"]],["13:45","Контент",["contentIdea"]],["16:00–22:00","Деньги + тело",["work","strength"]],["22:30","Кардио",["cardio"]],["23:00","Душ + мысль",["postCardioNote"]],["00:15","Творчество",["creative"]],["01:45","Review",["review"]],["02:10","Закрытие",["suppNight","prayerNight","breathNight"]],["03:00","Сон",["sleep"]]];
 const protocols=[
-{id:"phone",icon:"📱",title:"Телефон / скролл",trigger:"Тянет открыть ленту и исчезнуть.",steps:["Положить телефон экраном вниз на 5 минут.","Открыть текущую задачу.","Сделать 5 минут минимума.","После минимума разрешить 10–30 минут приятного."],phrase:"Телефон — награда, не хозяин.",mode:"hard"},
-{id:"fatigue",icon:"😮‍💨",title:"Усталость после клиентов",trigger:"Нет ресурса после работы.",steps:["Не спорить с усталостью.","Кардио легче, но не отменять.","Творчество сократить до 15 минут.","Review сделать в 3 строки."],phrase:"Минимум сохраняет день.",mode:"soft"},
-{id:"noenergy",icon:"🪫",title:"Нет сил вообще",trigger:"Пустой аккумулятор.",steps:["Вода.","10 циклов дыхания.","Одна задача на 5 минут.","Если не пошло — Minimum Mode."],phrase:"Система работает даже при низкой энергии.",mode:"soft"},
-{id:"perfectionism",icon:"🧱",title:"Перфекционизм",trigger:"Хочется идеально, поэтому не начинаешь.",steps:["Назвать задачу черновиком.","Сделать плохую первую версию.","Отметить факт движения.","Улучшать позже."],phrase:"Черновик сильнее фантазии.",mode:"balanced"},
-{id:"lateSleep",icon:"🌙",title:"Поздний сон",trigger:"После 02:00 тянет продолжать.",steps:["Закрыть творчество.","БАДЫ НОЧЬ.","Молитва.","Дыхание 3 минуты.","Телефон убрать."],phrase:"Сон — множитель завтрашнего Павла.",mode:"hard"},
-{id:"sweets",icon:"🍬",title:"Тяга к сладкому",trigger:"Особенно в выходные.",steps:["Проверить: голод, усталость или скука?","Вписать сладкое в лимит, не сверху.","Выбрать 300–500 ккал внутри плана.","После — прогулка или бытовое движение."],phrase:"Сладкое внутри плана — не срыв.",mode:"balanced"}
+{
+  id:"phone",icon:"📱",title:"Телефон / скролл",trigger:"Тянет открыть ленту и исчезнуть.",steps:["Положить телефон экраном вниз на 5 минут.","Открыть текущую задачу.","Сделать 5 минут минимума.","После минимума разрешить 10–30 минут приятного."],phrase:"Телефон — награда, не хозяин.",mode:"hard"
+}
+,
+{
+  id:"fatigue",icon:"😮‍💨",title:"Усталость после клиентов",trigger:"Нет ресурса после работы.",steps:["Не спорить с усталостью.","Кардио легче, но не отменять.","Творчество сократить до 15 минут.","Review сделать в 3 строки."],phrase:"Минимум сохраняет день.",mode:"soft"
+}
+,
+{
+  id:"noenergy",icon:"🪫",title:"Нет сил вообще",trigger:"Пустой аккумулятор.",steps:["Вода.","10 циклов дыхания.","Одна задача на 5 минут.","Если не пошло — Minimum Mode."],phrase:"Система работает даже при низкой энергии.",mode:"soft"
+}
+,
+{
+  id:"perfectionism",icon:"🧱",title:"Перфекционизм",trigger:"Хочется идеально, поэтому не начинаешь.",steps:["Назвать задачу черновиком.","Сделать плохую первую версию.","Отметить факт движения.","Улучшать позже."],phrase:"Черновик сильнее фантазии.",mode:"balanced"
+}
+,
+{
+  id:"lateSleep",icon:"🌙",title:"Поздний сон",trigger:"После 02:00 тянет продолжать.",steps:["Закрыть творчество.","БАДЫ НОЧЬ.","Молитва.","Дыхание 3 минуты.","Телефон убрать."],phrase:"Сон — множитель завтрашнего Павла.",mode:"hard"
+}
+,
+{
+  id:"sweets",icon:"🍬",title:"Тяга к сладкому",trigger:"Особенно в выходные.",steps:["Проверить: голод, усталость или скука?","Вписать сладкое в лимит, не сверху.","Выбрать 300–500 ккал внутри плана.","После — прогулка или бытовое движение."],phrase:"Сладкое внутри плана — не срыв.",mode:"balanced"
+}
 ];
 const autos=[
-{id:"autoYoutube",icon:"📺",title:"YouTube только на кардио/прогулке/быту",why:"Телефон становится топливом выполнения."},
-{id:"autoMealLang",icon:"🌍",title:"Еда открывает язык",why:"Языки вместо мусорных роликов."},
-{id:"autoPMCoffee",icon:"☕",title:"PM открывается напитком и таймером",why:"Приятный вход снижает сопротивление."},
-{id:"autoPostCardio",icon:"💡",title:"После кардио — мысль в Obsidian",why:"Идеи фиксируются без насилия."},
-{id:"autoRewardGate",icon:"🎁",title:"Скролл только после минимума",why:"Приятное становится наградой."}
+{
+  id:"autoYoutube",icon:"📺",title:"YouTube только на кардио/прогулке/быту",why:"Телефон становится топливом выполнения."
+}
+,
+{
+  id:"autoMealLang",icon:"🌍",title:"Еда открывает язык",why:"Языки вместо мусорных роликов."
+}
+,
+{
+  id:"autoPMCoffee",icon:"☕",title:"PM открывается напитком и таймером",why:"Приятный вход снижает сопротивление."
+}
+,
+{
+  id:"autoPostCardio",icon:"💡",title:"После кардио — мысль в Obsidian",why:"Идеи фиксируются без насилия."
+}
+,
+{
+  id:"autoRewardGate",icon:"🎁",title:"Скролл только после минимума",why:"Приятное становится наградой."
+}
 ];
-const defaults={settings:{theme:"black",startDate:localDate(),mode:"normal",tone:"balanced",obsidianVault:""},logs:{},ideas:[]};
+const defaults={
+  settings:{
+    theme:"black",startDate:localDate(),mode:"normal",tone:"balanced",obsidianVault:""
+  }
+  ,logs:{
+
+  }
+  ,ideas:[]
+}
+;
 let state=load(),active="today",focusTimer=null,focusLeft=0;
-function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function load(){try{return merge(defaults,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch{return structuredClone(defaults)}}
-function merge(a,b){const o=Array.isArray(a)?[...a]:{...a};for(const k in b)o[k]=b[k]&&typeof b[k]==="object"&&!Array.isArray(b[k])?merge(a[k]||{},b[k]):b[k];return o}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));document.documentElement.dataset.theme=state.settings.theme;document.querySelector('meta[name="theme-color"]').content=state.settings.theme==="white"?"#f5f0e6":"#050507"}
-function log(){const d=localDate();if(!state.logs[d])state.logs[d]={date:d,tasks:{},autos:{},protocols:{},fields:{},review:{},mode:state.settings.mode};return state.logs[d]}
-function timeNow(){return new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})}
-function dateNow(){return new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
-function tstate(id){return log().tasks[id]||{done:false,doneAt:"",plannedAt:""}}
-function done(id){return !!tstate(id).done}
-function mark(id,silent=false){const t=tasks.find(x=>x.id===id),s=tstate(id);log().tasks[id]=s.done?{done:false,doneAt:"",plannedAt:t?.time||""}:{done:true,doneAt:timeNow(),plannedAt:t?.time||""};save();render();if(!silent)toast(log().tasks[id].done?"Выполнено в "+timeNow():"Снято")}
-function autoDone(id){return !!log().autos[id]?.done}
-function markAuto(id){const a=autos.find(x=>x.id===id),s=log().autos[id];log().autos[id]=s?.done?{done:false,doneAt:""}:{done:true,doneAt:timeNow(),title:a?.title||""};save();render()}
-function protDone(id){return !!log().protocols[id]?.done}
-function markProtocol(id){const p=protocols.find(x=>x.id===id),s=log().protocols[id];log().protocols[id]=s?.done?{done:false,doneAt:""}:{done:true,doneAt:timeNow(),title:p?.title||""};save();render();toast(log().protocols[id].done?"Протокол засчитан":"Снято")}
-function setField(k,v){log().fields[k]=v;save()}
-function field(k){return log().fields[k]||""}
-function parse(label){const p=label.split("–")[0].split(":").map(Number);let h=p[0],m=p[1]||0,total=h*60+m;if(h<6)total+=1440;return total}
-function nowMin(){const d=new Date();let t=d.getHours()*60+d.getMinutes();if(d.getHours()<6)t+=1440;return t}
-function currentBlock(){let c=blocks[0],n=nowMin();for(const b of blocks)if(n>=parse(b[0]))c=b;return c}
-function nextBlock(){let n=nowMin();for(const b of blocks)if(parse(b[0])>n)return b;return blocks[0]}
-function currentTask(){const b=currentBlock(),c=b[2].map(id=>tasks.find(t=>t.id===id)).filter(Boolean);return c.find(t=>!done(t.id))||tasks.find(t=>!done(t.id))||tasks[0]}
-function xpOf(l){return tasks.reduce((s,t)=>s+(l.tasks?.[t.id]?.done?t.xp:0),0)}
-function xpToday(){return xpOf(log())}
-function xpTotal(){return Object.values(state.logs).reduce((s,l)=>s+xpOf(l),0)}
-function completed(){return tasks.filter(t=>done(t.id)).length}
-function percent(){return Math.round(completed()/tasks.length*100)}
-function daysLeft(){const s=new Date(state.settings.startDate),t=new Date(s);t.setDate(t.getDate()+60);return Math.max(0,Math.ceil((t-new Date())/86400000))}
-function rank(){const ranks=[["Новобранец",0],["Воин",350],["Феодал",1000],["Архитектор",2100],["Суверен",3600],["Легенда",5400]],xp=xpTotal();let cur=ranks[0],next=ranks.at(-1);for(let i=0;i<ranks.length;i++){if(xp>=ranks[i][1])cur=ranks[i];if(xp<ranks[i][1]){next=ranks[i];break}}return{cur:cur[0],next:next[0],xp,p:Math.min(100,Math.round((xp-cur[1])/Math.max(1,next[1]-cur[1])*100))}}
-function modeLabel(){return{normal:"Норма",minimum:"Минимум",soft:"Мягкий",hard:"Жёсткий"}[log().mode||state.settings.mode]||"Норма"}
-function setMode(m){log().mode=m;state.settings.mode=m;save();render();toast("Режим: "+modeLabel())}
-function toneText(t){const tone=state.settings.tone;if(tone==="hard")return`Жёстко: ${t.title}. Хватит обсуждать. Минимум — сделать сейчас.`;if(tone==="soft")return`Мягко: сделай минимальную версию “${t.title}”. Даже 5 минут сохраняют день.`;return`Сбалансировано: “${t.title}” — следующий шаг, который двигает всю систему.`}
-function reward(){return["water","suppMorning","prayerMorning","breathMorning","pm","english","contentIdea"].every(done)}
-function adherence(){const logs=Object.values(state.logs).slice(-7);if(!logs.length)return 0;const max=tasks.reduce((a,t)=>a+t.xp,0);return Math.round(logs.reduce((s,l)=>s+xpOf(l)/max*100,0)/logs.length)}
-function renderNav(){document.getElementById("nav").innerHTML=nav.map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="ico">${i[1]}</span><span><b>${i[2]}</b><br><small>${i[3]}</small></span></button>`).join("");document.getElementById("mobilebar").innerHTML=nav.slice(0,5).map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="mi">${i[1]}</span>${i[2]}</button>`).join("");updateNav()}
-function go(id){active=id;document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");const n=nav.find(i=>i[0]===id);document.getElementById("pageTitle").textContent=n[2];document.getElementById("pageSubtitle").textContent=n[3];updateNav();scrollTo({top:0,behavior:"smooth"})}
-function updateNav(){document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("active",b.dataset.go===active))}
-function stat(l,v,h){return`<div class="stat"><div class="label">${l}</div><div class="value">${v}</div><div class="hint">${h}</div></div>`}
-function input(k,l,p){return`<label><span>${l}</span><input value="${esc(field(k))}" placeholder="${p}" onchange="setField('${k}',this.value)"></label>`}
-function taskCheck(t){const s=tstate(t.id),cur=currentTask().id===t.id;return`<label class="check ${s.done?"done":""} ${cur?"current":""}"><input type="checkbox" ${s.done?"checked":""} onchange="mark('${t.id}')"><span><b>${t.icon} ${t.title}</b><small><b>План: ${t.time}</b> · ⏱ ${t.dur} мин · ${t.min}<br>${t.why}</small></span><span class="stamp ${s.done?"done":cur?"current":""}">${s.done?"✓ "+s.doneAt:cur?"СЕЙЧАС":"XP "+t.xp}</span></label>`}
-function stoic(){return["Сделай ближайшее правильное действие. Остальное — шум.","Не жди настроения. Настроение догонит действие.","Ты управляешь не миром, а своим следующим шагом.","Минимум дня — это не слабость, а страховка системы.","Повторение сильнее вдохновения."][new Date().getDate()%5]}
-function render(){save();renderToday();renderPlan();renderShield();renderTimeline();renderFuture();renderPM();renderBody();renderContent();renderArchive();updateNav()}
-function renderToday(){const t=currentTask(),b=currentBlock(),n=nextBlock(),r=rank();document.getElementById("today").innerHTML=`<div class="hero"><div class="card gold"><span class="tag gold">${t.icon} Сейчас · ${b[0]} · ${b[1]}</span><div class="clockRow"><div class="clock" id="liveClock">${timeNow()}</div><div class="dateLine">${dateNow()}<br>Режим: ${modeLabel()} · Следующий блок: ${n[0]} / ${n[1]}</div></div><h1 class="taskTitle">${t.icon} ${t.title}</h1><p class="taskText">${t.min}</p><div class="actions" style="margin:0 0 12px"><span class="pill gold">⏱ ${t.dur} мин</span><span class="tag gold">План: ${t.time}</span><span class="tag ${done(t.id)?"green":"gold"}">${done(t.id)?"Выполнено "+tstate(t.id).doneAt:"Следующее действие"}</span></div><div class="why"><b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}<br><br><b>Тон:</b> ${toneText(t)}</div><div class="actions" style="margin-top:13px"><button class="btn primary" onclick="mark('${t.id}')">✅ Выполнил</button><button class="btn" onclick="openCurrent()">Открыть</button><button class="btn green" onclick="startFocus(5)">⏱ 5 минут</button><button class="btn" onclick="startFocus(${t.dur})">⏳ ${t.dur} мин</button><button class="btn red" onclick="showShield()">🛡 Сливаюсь</button></div></div><div class="card"><div class="ring" style="--p:${percent()}"><span>${percent()}%</span></div><h2 class="serif" style="text-align:center;margin:0 0 4px">${r.cur}</h2><p class="muted small" style="text-align:center">XP сегодня: ${xpToday()} · всего: ${r.xp}<br>До финиша: ${daysLeft()} дней</p><div class="bar"><i style="width:${r.p}%"></i></div><p class="muted small" style="text-align:center">Следующий ранг: ${r.next}</p></div></div><div class="grid g4" style="margin-top:13px">${stat("Выполнено",`${completed()}/${tasks.length}`,"с отметкой времени")}${stat("Активный блок",b[1],b[0])}${stat("Reward",reward()?"Открыт":"Закрыт","приятное после минимума")}${stat("7 дней",adherence()+"%","среднее выполнение")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задачи по форматам</h3><div class="segment"><button class="seg active" onclick="filterTasks('all',this)">Все</button><button class="seg" onclick="filterTasks('Запуск',this)">Запуск</button><button class="seg" onclick="filterTasks('Будущее',this)">Будущее</button><button class="seg" onclick="filterTasks('Тело',this)">Тело</button><button class="seg" onclick="filterTasks('Закрытие',this)">Закрытие</button></div><div id="taskList" class="checklist">${taskList("all")}</div></div><div class="grid"><div class="card green"><h3>Формула дня</h3><p class="taskText">${stoic()}</p><div class="why">Контроль: действия. Не контроль: настроение, чужая оценка, идеальное состояние.</div></div><div class="card gold"><h3>Последний персональный план</h3><textarea class="copybox" readonly>${esc(field("personalPlan")||"План ещё не собран. Открой раздел “План”.")}</textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="go('plan')">Собрать план</button></div></div></div></div>`}
-function taskList(group){return tasks.filter(t=>group==="all"||t.group===group).map(taskCheck).join("")}
-function filterTasks(group,btn){document.querySelectorAll(".seg").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.getElementById("taskList").innerHTML=taskList(group)}
-function buildPlan(){const st=document.getElementById("planState").value,pr=document.getElementById("planPriority").value,min=+document.getElementById("planMinutes").value,tone=document.getElementById("planTone").value;const cur=currentTask();let pool={pm:["pm","english","contentIdea","review"],body:["strength","cardio","water","review"],content:["contentIdea","postCardioNote","creative","review"],money:["work","pm","english"],recovery:["water","breathMorning","pm","english","review"],full:tasks.map(t=>t.id)}[pr]||["pm","english","contentIdea"];if(st==="low"||st==="tired")pool=["water","breathMorning",cur.id,"review"];if(st==="phone")pool=[cur.id,"pm","english"];let used=0,steps=[];[cur.id,...pool].filter((x,i,a)=>a.indexOf(x)===i).forEach(id=>{const t=tasks.find(x=>x.id===id);if(!t||done(id)||used>=min)return;const d=Math.min(t.dur,min-used);if(d>0){steps.push({t,d});used+=d}});if(!steps.length)steps=[{t:cur,d:Math.min(cur.dur,min)}];const text=[`MARKOV OS — персональный план`,``,`Состояние: ${st}`,`Приоритет: ${pr}`,`Время: ${min} минут`,`Тон: ${tone}`,``,`План:`,...steps.map((s,i)=>`${i+1}. ${s.t.icon} ${s.t.title} — ${s.d} мин\n   Зачем: ${s.t.why}\n   Привязка: ${s.t.bundle}`),``,`Формула: выполнить первый блок ${steps[0].d} минут и отметить время.`].join("\n");document.getElementById("personalPlan").value=text;setField("personalPlan",text);state.settings.tone=tone;save();toast("План собран персонально.")}
-function renderPlan(){document.getElementById("plan").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🧩 Персональная сборка плана</h2><p class="muted">План собирается по состоянию, приоритету, доступному времени и тону. Текст читаемый в обеих темах.</p></div><div class="grid g2" style="margin-top:13px"><div class="card gold"><h3>Собрать план</h3><div class="grid g2"><label><span>Состояние</span><select id="planState"><option value="normal">Норма</option><option value="low">Низкая энергия</option><option value="tired">Устал после клиентов</option><option value="phone">Тянет в телефон</option><option value="strong">Готов давить</option></select></label><label><span>Приоритет</span><select id="planPriority"><option value="pm">PM</option><option value="body">Тело</option><option value="content">Контент</option><option value="money">Деньги</option><option value="recovery">Восстановление</option><option value="full">Вся система</option></select></label><label><span>Время</span><select id="planMinutes"><option value="5">5 минут</option><option value="15">15 минут</option><option value="30" selected>30 минут</option><option value="60">60 минут</option><option value="90">90 минут</option></select></label><label><span>Тон</span><select id="planTone"><option value="soft">Мягко</option><option value="balanced" selected>Сбалансированно</option><option value="hard">Жёстко</option></select></label></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="buildPlan()">⚡ Собрать</button><button class="btn" onclick="copyText(document.getElementById('personalPlan').value)">Скопировать</button></div><textarea id="personalPlan" class="copybox" style="margin-top:12px">${esc(field("personalPlan"))}</textarea></div><div class="card green"><h3>Сколько времени уделить</h3>${timeAdvice()}</div></div>`}
-function timeAdvice(){const t=currentTask();return`<div class="stat"><div class="label">Вход</div><div class="value">5 мин</div><div class="hint">Когда сопротивление высокое.</div></div><div class="stat" style="margin-top:8px"><div class="label">Рабочий кусок</div><div class="value">${Math.min(25,t.dur)} мин</div><div class="hint">Чтобы получить движение.</div></div><div class="stat" style="margin-top:8px"><div class="label">Полная задача</div><div class="value">${t.dur} мин</div><div class="hint">${t.title}</div></div>`}
-function renderShield(){document.getElementById("shield").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🛡 Протоколы слива</h2><p class="muted">Конкретные шаги под реальные сценарии.</p></div><div class="grid g2" style="margin-top:13px">${protocols.map(p=>`<div class="card ${p.mode==="hard"?"red":p.mode==="soft"?"green":"gold"}"><span class="tag ${protDone(p.id)?"green":"gold"}">${p.icon} ${protDone(p.id)?"выполнен "+log().protocols[p.id].doneAt:"протокол"}</span><h2 class="serif" style="font-size:24px;margin:10px 0 8px">${p.title}</h2><p class="muted small"><b>Триггер:</b> ${p.trigger}</p><ol class="small" style="line-height:1.65;color:var(--muted);padding-left:20px">${p.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="why"><b>Фраза:</b> ${p.phrase}</div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="markProtocol('${p.id}')">✅ Отметить</button><button class="btn" onclick="setMode('${p.mode==="hard"?"hard":p.mode==="soft"?"soft":"normal"}')">Применить</button></div></div>`).join("")}</div>`}
-function renderTimeline(){const cur=currentBlock();document.getElementById("timeline").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">⏱ Таймлайн</h2><p class="muted">Текущий блок подсвечен. Время выполнения выделяется зелёным.</p></div><div class="grid" style="margin-top:13px">${blocks.map(b=>{const all=b[2].every(done),isc=b[0]===cur[0];return`<div class="timeblock ${isc?"current":""} ${all?"done":""}"><div class="time">${b[0]}</div><div><b>${b[1]}</b><br><span class="muted small">${b[2].map(id=>tasks.find(t=>t.id===id).icon+" "+tasks.find(t=>t.id===id).title).join(" · ")}</span><div style="margin-top:8px">${b[2].map(id=>{const t=tasks.find(x=>x.id===id),s=tstate(id);return`<span class="tag ${s.done?"green":isc?"gold":""}">${t.icon} ${t.title}: ${s.done?s.doneAt:"ожидает"}</span>`}).join(" ")}</div></div><div class="actions">${b[2].map(id=>`<button class="btn ghost" onclick="mark('${id}')">${done(id)?"Снять":"Выполнить"}</button>`).join("")}</div></div>`}).join("")}</div>`}
-function project(days,rate){const r=rate/100,pm=days*75/60*r,eng=days*20/60*r,card=days*25/60*r,ideas=Math.round(days*r),xp=Math.round(days*tasks.reduce((s,t)=>s+t.xp,0)*r);return`За ${days} дней при выполнении ${rate}%:\n\nPM: ~${pm.toFixed(1)} часов\nEnglish speaking: ~${eng.toFixed(1)} часов\nКардио: ~${card.toFixed(1)} часов\nКонтент-идей: ~${ideas}\nXP: ~${xp}\n\nВывод: это уже не “попробовал”, а накопленная система.`}
-function calcProjection(){const d=+document.getElementById("futureDays").value,r=+document.getElementById("futureRate").value;document.getElementById("projectionOut").value=project(d,r)}
-function renderFuture(){document.getElementById("future").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🚀 Прогноз результата</h2><p class="muted">Калькулятор показывает, что будет, если выполнять систему стабильно.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Параметры</h3><label><span>Дней</span><select id="futureDays"><option>7</option><option>14</option><option>30</option><option selected>60</option></select></label><label style="margin-top:12px"><span>Выполнение</span><select id="futureRate"><option>50</option><option>70</option><option selected>85</option><option>100</option></select></label><button class="btn primary" style="margin-top:12px" onclick="calcProjection()">Рассчитать</button></div><div class="card green"><h3>Результат</h3><textarea id="projectionOut" class="copybox" readonly>${project(60,85)}</textarea></div></div>`}
-function renderPM(){document.getElementById("pm").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🧠 PM Path</h2><p class="muted">Артефакты, кейсы, английская речь.</p><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="copyText(pmPrompt())">Скопировать PM-промт</button><button class="btn" onclick="mark('pm')">PM выполнен</button></div></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задача дня</h3><p class="taskText">${pmDaily()}</p><label><span>Артефакт</span><textarea onchange="setField('pmArtifact',this.value)">${esc(field("pmArtifact"))}</textarea></label></div><div class="card"><h3>Фразы</h3>${["Let me clarify the scope before we commit.","What is the current blocker?","Could you estimate this task?","Let's align on priorities."].map((p,i)=>stat("Phrase "+(i+1),p,"PM English")).join("")}</div></div>`}
-function pmDaily(){return["Weekly review: что показать.","Risk Register для MARKOV OS.","Backlog из 10 задач.","Status report.","Stakeholder Map.","Daily standup на английском.","Конфликт: scope меняется."][new Date().getDay()]}
-function pmPrompt(){return`Ты — PM-ментор Павла Маркова. Задача дня: ${pmDaily()}\nДай: 20/80, шаблон, пример MARKOV OS, English phrases, задание на 20 минут.`}
-function renderBody(){const w=parseFloat(field("weight")||100),lbm=w*.85,mif=Math.round(10*w+6.25*188-5*29+5),kat=Math.round(370+21.6*lbm),tdee=Math.round(((mif+kat)/2)*1.62);document.getElementById("body").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🏋️ Тело</h2><p class="muted">Сушка без потери силы.</p></div><div class="grid g4" style="margin-top:13px">${stat("BMR",mif,"Mifflin")}${stat("Katch",kat,"LBM ~"+Math.round(lbm)+" кг")}${stat("TDEE",tdee,"оценка")}${stat("Дефицит",tdee-2800,"при 2800")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Трекер</h3><div class="grid g2">${input("weight","Вес","100.0")}${input("waist","Талия","см")}${input("wellbeing","Самочувствие","7")}${input("energyNight","Энергия","5")}</div></div><div class="card"><h3>Цели</h3><table><tr><th>Жир</th><th>Вес</th></tr>${[14,12,10,9,8].map(x=>`<tr><td>${x}%</td><td>${(lbm/(1-x/100)).toFixed(1)} кг</td></tr>`).join("")}</table></div></div>`}
-function renderContent(){document.getElementById("content").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">✍️ Контент</h2><p class="muted">Одна мысль → пост → видео.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Новая мысль</h3><textarea id="ideaIn"></textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="addIdea()">Сохранить</button></div></div><div class="card"><h3>Черновик</h3><select id="ctype"><option>Telegram</option><option>Reels</option><option>Stories</option></select><button class="btn" style="margin-top:12px" onclick="genContent()">Собрать</button><textarea id="contentOut" class="copybox"></textarea></div></div><div class="card" style="margin-top:13px"><h3>Идеи</h3>${state.ideas.slice().reverse().map(i=>`<div class="check"><span>✍️</span><span><b>${esc(i.text)}</b><small>${i.date}</small></span><span class="stamp">${i.status}</span></div>`).join("")||"<p class='muted'>Пока идей нет.</p>"}</div>`}
-function addIdea(){const v=document.getElementById("ideaIn").value.trim();if(!v)return toast("Напиши мысль");state.ideas.push({id:Date.now()+"",date:localDate(),text:v,status:"idea"});setField("note",v);if(!done("contentIdea"))log().tasks.contentIdea={done:true,doneAt:timeNow(),plannedAt:"13:45"};save();render();toast("Идея сохранена")}
-function genContent(){const v=document.getElementById("ideaIn").value.trim()||state.ideas.at(-1)?.text||"";document.getElementById("contentOut").value=v?`${v}\n\nВывод: система сильнее настроения.\n\n— Павел Марков`:"Нет мысли."}
-function obsidianText(){const doneList=tasks.filter(t=>done(t.id)).map(t=>`- ${t.icon} ${t.title} — ${tstate(t.id).doneAt}`).join("\n");return`# MARKOV OS — ${localDate()}\n\n## Выполнено\n${doneList||"- Пока ничего"}\n\n## План\n${field("personalPlan")}\n\n## PM\n${field("pmArtifact")}\n\n## Мысль\n${field("note")}`;}
-function renderArchive(){const logs=Object.values(state.logs).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);document.getElementById("archive").innerHTML=`<div class="grid g4">${stat("XP всего",xpTotal(),"накоплено")}${stat("XP сегодня",xpToday(),"сегодня")}${stat("Дней",Object.keys(state.logs).length,"в архиве")}${stat("Протоколы",Object.values(log().protocols).filter(x=>x.done).length+"/"+protocols.length,"сегодня")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Obsidian</h3><textarea id="obsidianBox" class="copybox" readonly>${esc(obsidianText())}</textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button><button class="btn" onclick="copyText(obsidianText())">Скопировать</button></div></div><div class="card"><h3>Архив дней</h3>${logs.map(l=>`<div class="check"><span>📜</span><span><b>${l.date}</b><small>${xpOf(l)} XP · ${tasks.filter(t=>l.tasks?.[t.id]?.done).length}/${tasks.length}</small></span><span class="stamp">${Math.round(tasks.filter(t=>l.tasks?.[t.id]?.done).length/tasks.length*100)}%</span></div>`).join("")}</div></div>`}
-function openObsidian(){const txt=obsidianText();copyText(txt);window.location.href=`obsidian://new?file=${encodeURIComponent("MARKOV OS/"+localDate())}&content=${encodeURIComponent(txt)}`}
-function openCurrent(){openTask(currentTask().id)}
-function openTask(id){const t=tasks.find(x=>x.id===id);document.getElementById("taskModalTitle").textContent=t.icon+" "+t.title;document.getElementById("taskModalSub").textContent=`План: ${t.time} · ⏱ ${t.dur} мин · XP ${t.xp}`;document.getElementById("taskModalAction").textContent=t.min;document.getElementById("taskModalWhy").innerHTML=`<b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}`;document.getElementById("taskDoneBtn").onclick=()=>{mark(t.id);closeTask()};document.getElementById("taskFullTimer").textContent="⏳ "+t.dur+" мин";document.getElementById("taskFullTimer").onclick=()=>startFocus(t.dur);document.getElementById("taskModal").classList.add("active")}
-function closeTask(){document.getElementById("taskModal").classList.remove("active")}
-function startFocus(min){clearInterval(focusTimer);focusLeft=min*60;document.getElementById("focusBox")?.classList.add("active");updateFocus();focusTimer=setInterval(()=>{focusLeft--;updateFocus();if(focusLeft<=0){clearInterval(focusTimer);toast("Фокус завершён")}},1000)}
-function updateFocus(){const m=String(Math.floor(focusLeft/60)).padStart(2,"0"),s=String(focusLeft%60).padStart(2,"0");const n=document.getElementById("focusTimer");if(n)n.textContent=`${m}:${s}`}
-function showShield(){go("shield")}
-function showWhy(){document.getElementById("whyModal").classList.add("active");document.getElementById("whyGrid").innerHTML=tasks.map(t=>`<div class="card"><span class="tag gold">${t.icon} ${t.time}</span><h4>${t.title}</h4><p class="small"><b>Зачем:</b> ${t.why}</p><p class="muted small"><b>К чему:</b> ${t.result}</p></div>`).join("")}
-function closeWhy(){document.getElementById("whyModal").classList.remove("active")}
-function toggleTheme(){state.settings.theme=state.settings.theme==="white"?"black":"white";save();render();toast(state.settings.theme==="white"?"Белая тема":"Чёрная тема")}
-function copyText(text){navigator.clipboard?navigator.clipboard.writeText(text).then(()=>toast("Скопировано")):(()=>{const a=document.createElement("textarea");a.value=text;document.body.appendChild(a);a.select();document.execCommand("copy");a.remove();toast("Скопировано")})()}
-function toast(msg){const n=document.getElementById("toast");n.textContent=msg;n.classList.add("active");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.classList.remove("active"),3000)}
-function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-renderNav();render();setInterval(()=>{const c=document.getElementById("liveClock");if(c)c.textContent=timeNow();if(active==="today"||active==="timeline")render()},30000);
+function localDate(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`
+}
+function load(){
+  try{
+    return merge(defaults,JSON.parse(localStorage.getItem(KEY)||"{}"))
+  }
+  catch{
+    return structuredClone(defaults)
+  }
+
+}
+function merge(a,b){
+  const o=Array.isArray(a)?[...a]:{
+    ...a
+  }
+  ;
+  for(const k in b)o[k]=b[k]&&typeof b[k]==="object"&&!Array.isArray(b[k])?merge(a[k]||{
+
+  }
+  ,b[k]):b[k];
+  return o
+}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  document.documentElement.dataset.theme=state.settings.theme;
+  document.querySelector('meta[name="theme-color"]').content=state.settings.theme==="white"?"#f5f0e6":"#050507"
+}
+function log(){
+  const d=localDate();
+  if(!state.logs[d])state.logs[d]={
+    date:d,tasks:{
+
+    }
+    ,autos:{
+
+    }
+    ,protocols:{
+
+    }
+    ,fields:{
+
+    }
+    ,review:{
+
+    }
+    ,mode:state.settings.mode
+  }
+  ;
+  return state.logs[d]
+}
+function timeNow(){
+  return new Date().toLocaleTimeString("ru-RU",{
+    hour:"2-digit",minute:"2-digit"
+  }
+  )
+}
+function dateNow(){
+  return new Date().toLocaleDateString("ru-RU",{
+    weekday:"long",day:"numeric",month:"long",year:"numeric"
+  }
+  )
+}
+function tstate(id){
+  return log().tasks[id]||{
+    done:false,doneAt:"",plannedAt:""
+  }
+
+}
+function done(id){
+  return !!tstate(id).done
+}
+function mark(id,silent=false){
+  const t=tasks.find(x=>x.id===id),s=tstate(id);
+  log().tasks[id]=s.done?{
+    done:false,doneAt:"",plannedAt:t?.time||""
+  }
+  :{
+    done:true,doneAt:timeNow(),plannedAt:t?.time||""
+  }
+  ;
+  save();
+  render();
+  if(!silent)toast(log().tasks[id].done?"Выполнено в "+timeNow():"Снято")
+}
+function autoDone(id){
+  return !!log().autos[id]?.done
+}
+function markAuto(id){
+  const a=autos.find(x=>x.id===id),s=log().autos[id];
+  log().autos[id]=s?.done?{
+    done:false,doneAt:""
+  }
+  :{
+    done:true,doneAt:timeNow(),title:a?.title||""
+  }
+  ;
+  save();
+  render()
+}
+function protDone(id){
+  return !!log().protocols[id]?.done
+}
+function markProtocol(id){
+  const p=protocols.find(x=>x.id===id),s=log().protocols[id];
+  log().protocols[id]=s?.done?{
+    done:false,doneAt:""
+  }
+  :{
+    done:true,doneAt:timeNow(),title:p?.title||""
+  }
+  ;
+  save();
+  render();
+  toast(log().protocols[id].done?"Протокол засчитан":"Снято")
+}
+function setField(k,v){
+  log().fields[k]=v;
+  save()
+}
+function field(k){
+  return log().fields[k]||""
+}
+function parse(label){
+  const p=label.split("–")[0].split(":").map(Number);
+  let h=p[0],m=p[1]||0,total=h*60+m;
+  if(h<6)total+=1440;
+  return total
+}
+function nowMin(){
+  const d=new Date();
+  let t=d.getHours()*60+d.getMinutes();
+  if(d.getHours()<6)t+=1440;
+  return t
+}
+function currentBlock(){
+  let c=blocks[0],n=nowMin();
+  for(const b of blocks)if(n>=parse(b[0]))c=b;
+  return c
+}
+function nextBlock(){
+  let n=nowMin();
+  for(const b of blocks)if(parse(b[0])>n)return b;
+  return blocks[0]
+}
+function currentTask(){
+  const b=currentBlock(),c=b[2].map(id=>tasks.find(t=>t.id===id)).filter(Boolean);
+  return c.find(t=>!done(t.id))||tasks.find(t=>!done(t.id))||tasks[0]
+}
+function xpOf(l){
+  return tasks.reduce((s,t)=>s+(l.tasks?.[t.id]?.done?t.xp:0),0)
+}
+function xpToday(){
+  return xpOf(log())
+}
+function xpTotal(){
+  return Object.values(state.logs).reduce((s,l)=>s+xpOf(l),0)
+}
+function completed(){
+  return tasks.filter(t=>done(t.id)).length
+}
+function percent(){
+  return Math.round(completed()/tasks.length*100)
+}
+function daysLeft(){
+  const s=new Date(state.settings.startDate),t=new Date(s);
+  t.setDate(t.getDate()+60);
+  return Math.max(0,Math.ceil((t-new Date())/86400000))
+}
+function rank(){
+  const ranks=[["Новобранец",0],["Воин",350],["Феодал",1000],["Архитектор",2100],["Суверен",3600],["Легенда",5400]],xp=xpTotal();
+  let cur=ranks[0],next=ranks.at(-1);
+  for(let i=0;
+  i<ranks.length;
+  i++){
+    if(xp>=ranks[i][1])cur=ranks[i];
+    if(xp<ranks[i][1]){
+      next=ranks[i];
+      break
+    }
+
+  }
+  return{
+    cur:cur[0],next:next[0],xp,p:Math.min(100,Math.round((xp-cur[1])/Math.max(1,next[1]-cur[1])*100))
+  }
+
+}
+function modeLabel(){
+  return{
+    normal:"Норма",minimum:"Минимум",soft:"Мягкий",hard:"Жёсткий"
+  }
+  [log().mode||state.settings.mode]||"Норма"
+}
+function setMode(m){
+  log().mode=m;
+  state.settings.mode=m;
+  save();
+  render();
+  toast("Режим: "+modeLabel())
+}
+function toneText(t){
+  const tone=state.settings.tone;
+  if(tone==="hard")return`Жёстко: ${t.title}. Хватит обсуждать. Минимум — сделать сейчас.`;
+  if(tone==="soft")return`Мягко: сделай минимальную версию “${t.title}”. Даже 5 минут сохраняют день.`;
+  return`Сбалансировано: “${t.title}” — следующий шаг, который двигает всю систему.`
+}
+function reward(){
+  return["water","suppMorning","prayerMorning","breathMorning","pm","english","contentIdea"].every(done)
+}
+function adherence(){
+  const logs=Object.values(state.logs).slice(-7);
+  if(!logs.length)return 0;
+  const max=tasks.reduce((a,t)=>a+t.xp,0);
+  return Math.round(logs.reduce((s,l)=>s+xpOf(l)/max*100,0)/logs.length)
+}
+function renderNav(){
+  document.getElementById("nav").innerHTML=nav.map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="ico">${i[1]}</span><span><b>${i[2]}</b><br><small>${i[3]}</small></span></button>`).join("");
+  document.getElementById("mobilebar").innerHTML=nav.slice(0,5).map(i=>`<button data-go="${i[0]}" onclick="go('${i[0]}')"><span class="mi">${i[1]}</span>${i[2]}</button>`).join("");
+  updateNav()
+}
+function go(id){
+  active=id;
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  const n=nav.find(i=>i[0]===id);
+  document.getElementById("pageTitle").textContent=n[2];
+  document.getElementById("pageSubtitle").textContent=n[3];
+  updateNav();
+  scrollTo({
+    top:0,behavior:"smooth"
+  }
+  )
+}
+function updateNav(){
+  document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("active",b.dataset.go===active))
+}
+function stat(l,v,h){
+  return`<div class="stat"><div class="label">${l}</div><div class="value">${v}</div><div class="hint">${h}</div></div>`
+}
+function input(k,l,p){
+  return`<label><span>${l}</span><input value="${esc(field(k))}" placeholder="${p}" onchange="setField('${k}',this.value)"></label>`
+}
+function taskCheck(t){
+  const s=tstate(t.id),cur=currentTask().id===t.id;
+  return`<label class="check ${s.done?"done":""} ${cur?"current":""}"><input type="checkbox" ${s.done?"checked":""} onchange="mark('${t.id}')"><span><b>${t.icon} ${t.title}</b><small><b>План: ${t.time}</b> · ⏱ ${t.dur} мин · ${t.min}<br>${t.why}</small></span><span class="stamp ${s.done?"done":cur?"current":""}">${s.done?"✓ "+s.doneAt:cur?"СЕЙЧАС":"XP "+t.xp}</span></label>`
+}
+function stoic(){
+  return["Сделай ближайшее правильное действие. Остальное — шум.","Не жди настроения. Настроение догонит действие.","Ты управляешь не миром, а своим следующим шагом.","Минимум дня — это не слабость, а страховка системы.","Повторение сильнее вдохновения."][new Date().getDate()%5]
+}
+function render(){
+  save();
+  renderToday();
+  renderPlan();
+  renderShield();
+  renderTimeline();
+  renderFuture();
+  renderPM();
+  renderBody();
+  renderContent();
+  renderArchive();
+  updateNav()
+}
+function renderToday(){
+  const t=currentTask(),b=currentBlock(),n=nextBlock(),r=rank();
+  document.getElementById("today").innerHTML=`<div class="hero"><div class="card gold"><span class="tag gold">${t.icon} Сейчас · ${b[0]} · ${b[1]}</span><div class="clockRow"><div class="clock" id="liveClock">${timeNow()}</div><div class="dateLine">${dateNow()}<br>Режим: ${modeLabel()} · Следующий блок: ${n[0]} / ${n[1]}</div></div><h1 class="taskTitle">${t.icon} ${t.title}</h1><p class="taskText">${t.min}</p><div class="actions" style="margin:0 0 12px"><span class="pill gold">⏱ ${t.dur} мин</span><span class="tag gold">План: ${t.time}</span><span class="tag ${done(t.id)?"green":"gold"}">${done(t.id)?"Выполнено "+tstate(t.id).doneAt:"Следующее действие"}</span></div><div class="why"><b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}<br><br><b>Тон:</b> ${toneText(t)}</div><div class="actions" style="margin-top:13px"><button class="btn primary" onclick="mark('${t.id}')">✅ Выполнил</button><button class="btn" onclick="openCurrent()">Открыть</button><button class="btn green" onclick="startFocus(5)">⏱ 5 минут</button><button class="btn" onclick="startFocus(${t.dur})">⏳ ${t.dur} мин</button><button class="btn red" onclick="showShield()">🛡 Сливаюсь</button></div></div><div class="card"><div class="ring" style="--p:${percent()}"><span>${percent()}%</span></div><h2 class="serif" style="text-align:center;margin:0 0 4px">${r.cur}</h2><p class="muted small" style="text-align:center">XP сегодня: ${xpToday()} · всего: ${r.xp}<br>До финиша: ${daysLeft()} дней</p><div class="bar"><i style="width:${r.p}%"></i></div><p class="muted small" style="text-align:center">Следующий ранг: ${r.next}</p></div></div><div class="grid g4" style="margin-top:13px">${stat("Выполнено",`${
+    completed()
+  }
+  /${
+    tasks.length
+  }
+  `,"с отметкой времени")}${stat("Активный блок",b[1],b[0])}${stat("Reward",reward()?"Открыт":"Закрыт","приятное после минимума")}${stat("7 дней",adherence()+"%","среднее выполнение")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задачи по форматам</h3><div class="segment"><button class="seg active" onclick="filterTasks('all',this)">Все</button><button class="seg" onclick="filterTasks('Запуск',this)">Запуск</button><button class="seg" onclick="filterTasks('Будущее',this)">Будущее</button><button class="seg" onclick="filterTasks('Тело',this)">Тело</button><button class="seg" onclick="filterTasks('Закрытие',this)">Закрытие</button></div><div id="taskList" class="checklist">${taskList("all")}</div></div><div class="grid"><div class="card green"><h3>Формула дня</h3><p class="taskText">${stoic()}</p><div class="why">Контроль: действия. Не контроль: настроение, чужая оценка, идеальное состояние.</div></div><div class="card gold"><h3>Последний персональный план</h3><textarea class="copybox" readonly>${esc(field("personalPlan")||"План ещё не собран. Открой раздел “План”.")}</textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="go('plan')">Собрать план</button></div></div></div></div>`
+}
+function taskList(group){
+  return tasks.filter(t=>group==="all"||t.group===group).map(taskCheck).join("")
+}
+function filterTasks(group,btn){
+  document.querySelectorAll(".seg").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("taskList").innerHTML=taskList(group)
+}
+function buildPlan(){
+  const st=document.getElementById("planState").value,pr=document.getElementById("planPriority").value,min=+document.getElementById("planMinutes").value,tone=document.getElementById("planTone").value;
+  const cur=currentTask();
+  let pool={
+    pm:["pm","english","contentIdea","review"],body:["strength","cardio","water","review"],content:["contentIdea","postCardioNote","creative","review"],money:["work","pm","english"],recovery:["water","breathMorning","pm","english","review"],full:tasks.map(t=>t.id)
+  }
+  [pr]||["pm","english","contentIdea"];
+  if(st==="low"||st==="tired")pool=["water","breathMorning",cur.id,"review"];
+  if(st==="phone")pool=[cur.id,"pm","english"];
+  let used=0,steps=[];
+  [cur.id,...pool].filter((x,i,a)=>a.indexOf(x)===i).forEach(id=>{
+    const t=tasks.find(x=>x.id===id);
+    if(!t||done(id)||used>=min)return;
+    const d=Math.min(t.dur,min-used);
+    if(d>0){
+      steps.push({
+        t,d
+      }
+      );
+      used+=d
+    }
+
+  }
+  );
+  if(!steps.length)steps=[{
+    t:cur,d:Math.min(cur.dur,min)
+  }
+  ];
+  const text=[`MARKOV OS — персональный план`,``,`Состояние: ${st}`,`Приоритет: ${pr}`,`Время: ${min} минут`,`Тон: ${tone}`,``,`План:`,...steps.map((s,i)=>`${i+1}. ${s.t.icon} ${s.t.title} — ${s.d} мин\n   Зачем: ${s.t.why}\n   Привязка: ${s.t.bundle}`),``,`Формула: выполнить первый блок ${steps[0].d} минут и отметить время.`].join("\n");
+  document.getElementById("personalPlan").value=text;
+  setField("personalPlan",text);
+  state.settings.tone=tone;
+  save();
+  toast("План собран персонально.")
+}
+function renderPlan(){
+  document.getElementById("plan").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🧩 Персональная сборка плана</h2><p class="muted">План собирается по состоянию, приоритету, доступному времени и тону. Текст читаемый в обеих темах.</p></div><div class="grid g2" style="margin-top:13px"><div class="card gold"><h3>Собрать план</h3><div class="grid g2"><label><span>Состояние</span><select id="planState"><option value="normal">Норма</option><option value="low">Низкая энергия</option><option value="tired">Устал после клиентов</option><option value="phone">Тянет в телефон</option><option value="strong">Готов давить</option></select></label><label><span>Приоритет</span><select id="planPriority"><option value="pm">PM</option><option value="body">Тело</option><option value="content">Контент</option><option value="money">Деньги</option><option value="recovery">Восстановление</option><option value="full">Вся система</option></select></label><label><span>Время</span><select id="planMinutes"><option value="5">5 минут</option><option value="15">15 минут</option><option value="30" selected>30 минут</option><option value="60">60 минут</option><option value="90">90 минут</option></select></label><label><span>Тон</span><select id="planTone"><option value="soft">Мягко</option><option value="balanced" selected>Сбалансированно</option><option value="hard">Жёстко</option></select></label></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="buildPlan()">⚡ Собрать</button><button class="btn" onclick="copyText(document.getElementById('personalPlan').value)">Скопировать</button></div><textarea id="personalPlan" class="copybox" style="margin-top:12px">${esc(field("personalPlan"))}</textarea></div><div class="card green"><h3>Сколько времени уделить</h3>${timeAdvice()}</div></div>`
+}
+function timeAdvice(){
+  const t=currentTask();
+  return`<div class="stat"><div class="label">Вход</div><div class="value">5 мин</div><div class="hint">Когда сопротивление высокое.</div></div><div class="stat" style="margin-top:8px"><div class="label">Рабочий кусок</div><div class="value">${Math.min(25,t.dur)} мин</div><div class="hint">Чтобы получить движение.</div></div><div class="stat" style="margin-top:8px"><div class="label">Полная задача</div><div class="value">${t.dur} мин</div><div class="hint">${t.title}</div></div>`
+}
+function renderShield(){
+  document.getElementById("shield").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🛡 Протоколы слива</h2><p class="muted">Конкретные шаги под реальные сценарии.</p></div><div class="grid g2" style="margin-top:13px">${protocols.map(p=>`<div class="card ${p.mode==="hard"?"red":p.mode==="soft"?"green":"gold"}"><span class="tag ${protDone(p.id)?"green":"gold"}">${
+    p.icon
+  }
+  ${
+    protDone(p.id)?"выполнен "+log().protocols[p.id].doneAt:"протокол"
+  }
+  </span><h2 class="serif" style="font-size:24px;margin:10px 0 8px">${
+    p.title
+  }
+  </h2><p class="muted small"><b>Триггер:</b> ${
+    p.trigger
+  }
+  </p><ol class="small" style="line-height:1.65;color:var(--muted);padding-left:20px">${
+    p.steps.map(s=>`<li>${s}</li>`).join("")
+  }
+  </ol><div class="why"><b>Фраза:</b> ${
+    p.phrase
+  }
+  </div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="markProtocol('${p.id}')">✅ Отметить</button><button class="btn" onclick="setMode('${p.mode==="hard"?"hard":p.mode==="soft"?"soft":"normal"}')">Применить</button></div></div>`).join("")}</div>`
+}
+function renderTimeline(){
+  const cur=currentBlock();
+  document.getElementById("timeline").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">⏱ Таймлайн</h2><p class="muted">Текущий блок подсвечен. Время выполнения выделяется зелёным.</p></div><div class="grid" style="margin-top:13px">${blocks.map(b=>{const all=b[2].every(done),isc=b[0]===cur[0];return`<div class="timeblock ${isc?"current":""} ${all?"done":""}"><div class="time">${
+    b[0]
+  }
+  </div><div><b>${
+    b[1]
+  }
+  </b><br><span class="muted small">${
+    b[2].map(id=>tasks.find(t=>t.id===id).icon+" "+tasks.find(t=>t.id===id).title).join(" · ")
+  }
+  </span><div style="margin-top:8px">${
+    b[2].map(id=>{
+      const t=tasks.find(x=>x.id===id),s=tstate(id);
+      return`<span class="tag ${s.done?"green":isc?"gold":""}">${t.icon} ${t.title}: ${s.done?s.doneAt:"ожидает"}</span>`
+    }
+    ).join(" ")
+  }
+  </div></div><div class="actions">${
+    b[2].map(id=>`<button class="btn ghost" onclick="mark('${id}')">${done(id)?"Снять":"Выполнить"}</button>`).join("")
+  }
+  </div></div>`}).join("")}</div>`
+}
+function project(days,rate){
+  const r=rate/100,pm=days*75/60*r,eng=days*20/60*r,card=days*25/60*r,ideas=Math.round(days*r),xp=Math.round(days*tasks.reduce((s,t)=>s+t.xp,0)*r);
+  return`За ${days} дней при выполнении ${rate}%:\n\nPM: ~${pm.toFixed(1)} часов\nEnglish speaking: ~${eng.toFixed(1)} часов\nКардио: ~${card.toFixed(1)} часов\nКонтент-идей: ~${ideas}\nXP: ~${xp}\n\nВывод: это уже не “попробовал”, а накопленная система.`
+}
+function calcProjection(){
+  const d=+document.getElementById("futureDays").value,r=+document.getElementById("futureRate").value;
+  document.getElementById("projectionOut").value=project(d,r)
+}
+function renderFuture(){
+  document.getElementById("future").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🚀 Прогноз результата</h2><p class="muted">Калькулятор показывает, что будет, если выполнять систему стабильно.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Параметры</h3><label><span>Дней</span><select id="futureDays"><option>7</option><option>14</option><option>30</option><option selected>60</option></select></label><label style="margin-top:12px"><span>Выполнение</span><select id="futureRate"><option>50</option><option>70</option><option selected>85</option><option>100</option></select></label><button class="btn primary" style="margin-top:12px" onclick="calcProjection()">Рассчитать</button></div><div class="card green"><h3>Результат</h3><textarea id="projectionOut" class="copybox" readonly>${project(60,85)}</textarea></div></div>`
+}
+function renderPM(){
+  document.getElementById("pm").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🧠 PM Path</h2><p class="muted">Артефакты, кейсы, английская речь.</p><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="copyText(pmPrompt())">Скопировать PM-промт</button><button class="btn" onclick="mark('pm')">PM выполнен</button></div></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Задача дня</h3><p class="taskText">${pmDaily()}</p><label><span>Артефакт</span><textarea onchange="setField('pmArtifact',this.value)">${esc(field("pmArtifact"))}</textarea></label></div><div class="card"><h3>Фразы</h3>${["Let me clarify the scope before we commit.","What is the current blocker?","Could you estimate this task?","Let's align on priorities."].map((p,i)=>stat("Phrase "+(i+1),p,"PM English")).join("")}</div></div>`
+}
+function pmDaily(){
+  return["Weekly review: что показать.","Risk Register для MARKOV OS.","Backlog из 10 задач.","Status report.","Stakeholder Map.","Daily standup на английском.","Конфликт: scope меняется."][new Date().getDay()]
+}
+function pmPrompt(){
+  return`Ты — PM-ментор Павла Маркова. Задача дня: ${pmDaily()}\nДай: 20/80, шаблон, пример MARKOV OS, English phrases, задание на 20 минут.`
+}
+function renderBody(){
+  const w=parseFloat(field("weight")||100),lbm=w*.85,mif=Math.round(10*w+6.25*188-5*29+5),kat=Math.round(370+21.6*lbm),tdee=Math.round(((mif+kat)/2)*1.62);
+  document.getElementById("body").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">🏋️ Тело</h2><p class="muted">Сушка без потери силы.</p></div><div class="grid g4" style="margin-top:13px">${stat("BMR",mif,"Mifflin")}${stat("Katch",kat,"LBM ~"+Math.round(lbm)+" кг")}${stat("TDEE",tdee,"оценка")}${stat("Дефицит",tdee-2800,"при 2800")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Трекер</h3><div class="grid g2">${input("weight","Вес","100.0")}${input("waist","Талия","см")}${input("wellbeing","Самочувствие","7")}${input("energyNight","Энергия","5")}</div></div><div class="card"><h3>Цели</h3><table><tr><th>Жир</th><th>Вес</th></tr>${[14,12,10,9,8].map(x=>`<tr><td>${
+    x
+  }
+  %</td><td>${
+    (lbm/(1-x/100)).toFixed(1)
+  }
+  кг</td></tr>`).join("")}</table></div></div>`
+}
+function renderContent(){
+  document.getElementById("content").innerHTML=`<div class="card gold"><h2 class="serif" style="font-size:30px;margin:0 0 8px">✍️ Контент</h2><p class="muted">Одна мысль → пост → видео.</p></div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Новая мысль</h3><textarea id="ideaIn"></textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="addIdea()">Сохранить</button></div></div><div class="card"><h3>Черновик</h3><select id="ctype"><option>Telegram</option><option>Reels</option><option>Stories</option></select><button class="btn" style="margin-top:12px" onclick="genContent()">Собрать</button><textarea id="contentOut" class="copybox"></textarea></div></div><div class="card" style="margin-top:13px"><h3>Идеи</h3>${state.ideas.slice().reverse().map(i=>`<div class="check"><span>✍️</span><span><b>${
+    esc(i.text)
+  }
+  </b><small>${
+    i.date
+  }
+  </small></span><span class="stamp">${
+    i.status
+  }
+  </span></div>`).join("")||"<p class='muted'>Пока идей нет.</p>"}</div>`
+}
+function addIdea(){
+  const v=document.getElementById("ideaIn").value.trim();
+  if(!v)return toast("Напиши мысль");
+  state.ideas.push({
+    id:Date.now()+"",date:localDate(),text:v,status:"idea"
+  }
+  );
+  setField("note",v);
+  if(!done("contentIdea"))log().tasks.contentIdea={
+    done:true,doneAt:timeNow(),plannedAt:"13:45"
+  }
+  ;
+  save();
+  render();
+  toast("Идея сохранена")
+}
+function genContent(){
+  const v=document.getElementById("ideaIn").value.trim()||state.ideas.at(-1)?.text||"";
+  document.getElementById("contentOut").value=v?`${v}\n\nВывод: система сильнее настроения.\n\n— Павел Марков`:"Нет мысли."
+}
+function obsidianText(){
+  const doneList=tasks.filter(t=>done(t.id)).map(t=>`- ${t.icon} ${t.title} — ${tstate(t.id).doneAt}`).join("\n");
+  return`# MARKOV OS — ${localDate()}\n\n## Выполнено\n${doneList||"- Пока ничего"}\n\n## План\n${field("personalPlan")}\n\n## PM\n${field("pmArtifact")}\n\n## Мысль\n${field("note")}`;
+
+}
+function renderArchive(){
+  const logs=Object.values(state.logs).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
+  document.getElementById("archive").innerHTML=`<div class="grid g4">${stat("XP всего",xpTotal(),"накоплено")}${stat("XP сегодня",xpToday(),"сегодня")}${stat("Дней",Object.keys(state.logs).length,"в архиве")}${stat("Протоколы",Object.values(log().protocols).filter(x=>x.done).length+"/"+protocols.length,"сегодня")}</div><div class="grid g2" style="margin-top:13px"><div class="card"><h3>Obsidian</h3><textarea id="obsidianBox" class="copybox" readonly>${esc(obsidianText())}</textarea><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="openObsidian()">Открыть в Obsidian</button><button class="btn" onclick="copyText(obsidianText())">Скопировать</button></div></div><div class="card"><h3>Архив дней</h3>${logs.map(l=>`<div class="check"><span>📜</span><span><b>${
+    l.date
+  }
+  </b><small>${
+    xpOf(l)
+  }
+  XP · ${
+    tasks.filter(t=>l.tasks?.[t.id]?.done).length
+  }
+  /${
+    tasks.length
+  }
+  </small></span><span class="stamp">${
+    Math.round(tasks.filter(t=>l.tasks?.[t.id]?.done).length/tasks.length*100)
+  }
+  %</span></div>`).join("")}</div></div>`
+}
+function openObsidian(){
+  const txt=obsidianText();
+  copyText(txt);
+  window.location.href=`obsidian://new?file=${encodeURIComponent("MARKOV OS/"+localDate())}&content=${encodeURIComponent(txt)}`
+}
+function openCurrent(){
+  openTask(currentTask().id)
+}
+function openTask(id){
+  const t=tasks.find(x=>x.id===id);
+  document.getElementById("taskModalTitle").textContent=t.icon+" "+t.title;
+  document.getElementById("taskModalSub").textContent=`План: ${t.time} · ⏱ ${t.dur} мин · XP ${t.xp}`;
+  document.getElementById("taskModalAction").textContent=t.min;
+  document.getElementById("taskModalWhy").innerHTML=`<b>Зачем:</b> ${t.why}<br><br><b>К чему приведёт:</b> ${t.result}<br><br><b>Привязка:</b> ${t.bundle}`;
+  document.getElementById("taskDoneBtn").onclick=()=>{
+    mark(t.id);
+    closeTask()
+  }
+  ;
+  document.getElementById("taskFullTimer").textContent="⏳ "+t.dur+" мин";
+  document.getElementById("taskFullTimer").onclick=()=>startFocus(t.dur);
+  document.getElementById("taskModal").classList.add("active")
+}
+function closeTask(){
+  document.getElementById("taskModal").classList.remove("active")
+}
+function startFocus(min){
+  clearInterval(focusTimer);
+  focusLeft=min*60;
+  document.getElementById("focusBox")?.classList.add("active");
+  updateFocus();
+  focusTimer=setInterval(()=>{
+    focusLeft--;
+    updateFocus();
+    if(focusLeft<=0){
+      clearInterval(focusTimer);
+      toast("Фокус завершён")
+    }
+
+  }
+  ,1000)
+}
+function updateFocus(){
+  const m=String(Math.floor(focusLeft/60)).padStart(2,"0"),s=String(focusLeft%60).padStart(2,"0");
+  const n=document.getElementById("focusTimer");
+  if(n)n.textContent=`${m}:${s}`
+}
+function showShield(){
+  go("shield")
+}
+function showWhy(){
+  document.getElementById("whyModal").classList.add("active");
+  document.getElementById("whyGrid").innerHTML=tasks.map(t=>`<div class="card"><span class="tag gold">${t.icon} ${t.time}</span><h4>${t.title}</h4><p class="small"><b>Зачем:</b> ${t.why}</p><p class="muted small"><b>К чему:</b> ${t.result}</p></div>`).join("")
+}
+function closeWhy(){
+  document.getElementById("whyModal").classList.remove("active")
+}
+function toggleTheme(){
+  state.settings.theme=state.settings.theme==="white"?"black":"white";
+  save();
+  render();
+  toast(state.settings.theme==="white"?"Белая тема":"Чёрная тема")
+}
+function copyText(text){
+  navigator.clipboard?navigator.clipboard.writeText(text).then(()=>toast("Скопировано")):(()=>{
+    const a=document.createElement("textarea");
+    a.value=text;
+    document.body.appendChild(a);
+    a.select();
+    document.execCommand("copy");
+    a.remove();
+    toast("Скопировано")
+  }
+  )()
+}
+function toast(msg){
+  const n=document.getElementById("toast");
+  n.textContent=msg;
+  n.classList.add("active");
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>n.classList.remove("active"),3000)
+}
+function esc(x){
+  return String(x??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }
+  [c]))
+}
+renderNav();
+render();
+setInterval(()=>{
+  const c=document.getElementById("liveClock");
+  if(c)c.textContent=timeNow();
+  if(active==="today"||active==="timeline")render()
+}
+,30000);
 </script>
 </body>
 </html>
